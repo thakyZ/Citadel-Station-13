@@ -19,6 +19,8 @@
 	resistance_flags = LAVA_PROOF | FIRE_PROOF | ACID_PROOF
 	var/datum/effect_system/spark_spread/spark_system
 	var/datum/action/innate/dash/ninja/jaunt
+	var/mindistancedelay = 4
+	var/jaunt_clickcooldown_penalty = 4
 	var/dash_toggled = TRUE
 
 /obj/item/energy_katana/Initialize()
@@ -35,7 +37,10 @@
 /obj/item/energy_katana/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	. = ..()
 	if(dash_toggled)
+		var/turf/current = get_turf(user)
 		jaunt.Teleport(user, target)
+		if(get_dist(current, get_turf(user)) >= mindistancedelay)
+			user.DelayNextAction(jaunt_clickcooldown_penalty, considered_action = FALSE, flush = TRUE)
 	if(proximity_flag && (isobj(target) || issilicon(target)))
 		spark_system.start()
 		playsound(user, "sparks", 50, 1)
