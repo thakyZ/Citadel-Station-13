@@ -13,6 +13,8 @@ unset LIST
 #rust_g git tag
 export RUST_G_VERSION=0.4.7
 
+export PYTHON_VERSION=3.6.0
+
 #node version
 export NODE_VERSION=12
 
