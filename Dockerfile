@@ -42,6 +42,7 @@ COPY . .
 
 RUN ["chmod", "+x", "tools/build/build"]
 RUN ["chmod", "+x", "tools/deploy.sh"]
+RUN ["chmod", "+x", "tools/bootstrap/node"]
 
 RUN env TG_BOOTSTRAP_NODE_LINUX=1 tools/build/build \
     && tools/deploy.sh /deploy
