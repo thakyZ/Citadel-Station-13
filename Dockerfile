@@ -40,6 +40,9 @@ RUN apt-get install -y --no-install-recommends \
 
 COPY . .
 
+RUN ["chmod", "+x", "tools/build/build"]
+RUN ["chmod", "+x", "tools/deploy.sh"]
+
 RUN env TG_BOOTSTRAP_NODE_LINUX=1 tools/build/build \
     && tools/deploy.sh /deploy
 
