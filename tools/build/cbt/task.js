@@ -6,7 +6,6 @@
 
 const { compareFiles, Glob, File } = require('./fs');
 const fs = require('fs');
-const { mdiConsoleNetwork } = require('@mdi/js');
 
 class Task {
   constructor(name) {
