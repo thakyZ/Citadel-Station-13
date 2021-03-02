@@ -73,21 +73,17 @@ class Task {
 
   move(path, dest) {
     this.scripts.push(async () => {
-    if (fs.stat(dest, (err) => {
-      if (err) {
-        return;
-      }
-    })) {
-      fs.rm(dest, { force: false, maxRetries: 1, recursive: false, retryDelay: 20 }, (err) => {
+      fs.rename(path, dest, (err) => {
         if (err) {
-          return;
+            if (err.code === 'EXDEV') {
+                copy(path, dest);
+            } else {
+                callback(err);
+            }
+            return;
         }
-      });
-    }});
-    fs.rename(path, dest, (err) => {
-      if (err) {
         return;
-      }
+      });
     });
     return this;
   }
