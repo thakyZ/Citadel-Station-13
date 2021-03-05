@@ -47,7 +47,7 @@ const taskDmPre = new Task("dmPre")
   .copy("tgstation.dme", "tgstation.mdme")
   //.insert("tgstation.mdme", "CIBUILDING")
   //.insert("tgstation.mdme", "CITESTING")
-  .insert("tgstation.mdme", "ALL_MAPS")
+  //.insert("tgstation.mdme", "ALL_MAPS")
   .provides("tgstation.mdme");
 const taskDm = new Task("dm")
   .depends("_maps/map_files/generic/**")
