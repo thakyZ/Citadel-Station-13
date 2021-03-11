@@ -12,6 +12,8 @@ RUN dpkg --add-architecture i386 \
 FROM base AS byond
 WORKDIR /byond
 
+RUN apt-get update
+
 RUN apt-get install -y --no-install-recommends \
         curl \
         unzip \
