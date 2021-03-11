@@ -40,6 +40,11 @@ RUN apt-get install -y --no-install-recommends \
 
 COPY . .
 
+RUN ["chmod", "+x", "tools/build/build"]
+RUN ["chmod", "+x", "tools/deploy.sh"]
+RUN ["chmod", "+x", "tools/bootstrap/node"]
+RUN ["chmod", "+x", "tools/bootstrap/python"]
+
 RUN env TG_BOOTSTRAP_NODE_LINUX=1 tools/build/build \
     && tools/deploy.sh /deploy
 
@@ -81,5 +86,5 @@ COPY --from=build /deploy ./
 COPY --from=rust_g /rust_g/target/i686-unknown-linux-gnu/release/librust_g.so ./librust_g.so
 
 VOLUME [ "/tgstation/config", "/tgstation/data" ]
-ENTRYPOINT [ "DreamDaemon", "tgstation.dmb", "-port", "1337", "-trusted", "-close", "-verbose" ]
-EXPOSE 1337
+ENTRYPOINT [ "DreamDaemon", "tgstation.dmb", "-port", "5000", "-trusted", "-close", "-verbose" ]
+EXPOSE 5000

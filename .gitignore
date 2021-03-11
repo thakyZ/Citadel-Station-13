@@ -234,3 +234,4 @@ tools/LinuxOneShot/TGS_Logs
 
 # Common build tooling
 !/tools/build
+tools/build/build_*_*.js

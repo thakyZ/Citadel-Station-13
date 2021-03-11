@@ -1,18 +1,20 @@
-'use strict';
+"use strict";
 
-var fs = require('fs');
-var path$1 = require('path');
-var util = require('util');
-var events = require('events');
-var assert = require('assert');
+var fs = require("fs");
+var path$1 = require("path");
+var util = require("util");
+var events = require("events");
+var assert = require("assert");
 
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+function _interopDefaultLegacy(e) {
+  return e && typeof e === "object" && "default" in e ? e : { default: e };
+}
 
-var fs__default = /*#__PURE__*/_interopDefaultLegacy(fs);
-var path__default = /*#__PURE__*/_interopDefaultLegacy(path$1);
-var util__default = /*#__PURE__*/_interopDefaultLegacy(util);
-var events__default = /*#__PURE__*/_interopDefaultLegacy(events);
-var assert__default = /*#__PURE__*/_interopDefaultLegacy(assert);
+var fs__default = /*#__PURE__*/ _interopDefaultLegacy(fs);
+var path__default = /*#__PURE__*/ _interopDefaultLegacy(path$1);
+var util__default = /*#__PURE__*/ _interopDefaultLegacy(util);
+var events__default = /*#__PURE__*/ _interopDefaultLegacy(events);
+var assert__default = /*#__PURE__*/ _interopDefaultLegacy(assert);
 
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -35,9 +37,7 @@ var assert__default = /*#__PURE__*/_interopDefaultLegacy(assert);
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-
-var isWindows = process.platform === 'win32';
-
+var isWindows = process.platform === "win32";
 
 // JavaScript implementation of realpath, ported from node pre-v6
 
@@ -48,10 +48,9 @@ function rethrow() {
   // is fairly slow to generate.
   var callback;
   if (DEBUG) {
-    var backtrace = new Error;
+    var backtrace = new Error();
     callback = debugCallback;
-  } else
-    callback = missingCallback;
+  } else callback = missingCallback;
 
   return callback;
 
@@ -65,24 +64,22 @@ function rethrow() {
 
   function missingCallback(err) {
     if (err) {
-      if (process.throwDeprecation)
-        throw err;  // Forgot a callback but don't know where? Use NODE_DEBUG=fs
+      if (process.throwDeprecation) throw err;
+      // Forgot a callback but don't know where? Use NODE_DEBUG=fs
       else if (!process.noDeprecation) {
-        var msg = 'fs: missing callback ' + (err.stack || err.message);
-        if (process.traceDeprecation)
-          console.trace(msg);
-        else
-          console.error(msg);
+        var msg = "fs: missing callback " + (err.stack || err.message);
+        if (process.traceDeprecation) console.trace(msg);
+        else console.error(msg);
       }
     }
   }
 }
 
 function maybeCallback(cb) {
-  return typeof cb === 'function' ? cb : rethrow();
+  return typeof cb === "function" ? cb : rethrow();
 }
 
-var normalize = path__default['default'].normalize;
+var normalize = path__default["default"].normalize;
 
 // Regexp that finds the next partion of a (partial) path
 // result is [base_with_slash, base], e.g. ['somedir/', 'somedir']
@@ -101,15 +98,15 @@ if (isWindows) {
 
 var realpathSync = function realpathSync(p, cache) {
   // make p is absolute
-  p = path__default['default'].resolve(p);
+  p = path__default["default"].resolve(p);
 
   if (cache && Object.prototype.hasOwnProperty.call(cache, p)) {
     return cache[p];
   }
 
   var original = p,
-      seenLinks = {},
-      knownHard = {};
+    seenLinks = {},
+    knownHard = {};
 
   // current character position in p
   var pos;
@@ -128,11 +125,11 @@ var realpathSync = function realpathSync(p, cache) {
     pos = m[0].length;
     current = m[0];
     base = m[0];
-    previous = '';
+    previous = "";
 
     // On windows, check that the root exists. On unix there is no need.
     if (isWindows && !knownHard[base]) {
-      fs__default['default'].lstatSync(base);
+      fs__default["default"].lstatSync(base);
       knownHard[base] = true;
     }
   }
@@ -159,7 +156,7 @@ var realpathSync = function realpathSync(p, cache) {
       // some known symbolic link.  no need to stat again.
       resolvedLink = cache[base];
     } else {
-      var stat = fs__default['default'].lstatSync(base);
+      var stat = fs__default["default"].lstatSync(base);
       if (!stat.isSymbolicLink()) {
         knownHard[base] = true;
         if (cache) cache[base] = base;
@@ -170,23 +167,23 @@ var realpathSync = function realpathSync(p, cache) {
       // dev/ino always return 0 on windows, so skip the check.
       var linkTarget = null;
       if (!isWindows) {
-        var id = stat.dev.toString(32) + ':' + stat.ino.toString(32);
+        var id = stat.dev.toString(32) + ":" + stat.ino.toString(32);
         if (seenLinks.hasOwnProperty(id)) {
           linkTarget = seenLinks[id];
         }
       }
       if (linkTarget === null) {
-        fs__default['default'].statSync(base);
-        linkTarget = fs__default['default'].readlinkSync(base);
+        fs__default["default"].statSync(base);
+        linkTarget = fs__default["default"].readlinkSync(base);
       }
-      resolvedLink = path__default['default'].resolve(previous, linkTarget);
+      resolvedLink = path__default["default"].resolve(previous, linkTarget);
       // track this, if given a cache.
       if (cache) cache[base] = resolvedLink;
       if (!isWindows) seenLinks[id] = linkTarget;
     }
 
     // resolve the link, then start over
-    p = path__default['default'].resolve(resolvedLink, p.slice(pos));
+    p = path__default["default"].resolve(resolvedLink, p.slice(pos));
     start();
   }
 
@@ -195,23 +192,22 @@ var realpathSync = function realpathSync(p, cache) {
   return p;
 };
 
-
 var realpath = function realpath(p, cache, cb) {
-  if (typeof cb !== 'function') {
+  if (typeof cb !== "function") {
     cb = maybeCallback(cache);
     cache = null;
   }
 
   // make p is absolute
-  p = path__default['default'].resolve(p);
+  p = path__default["default"].resolve(p);
 
   if (cache && Object.prototype.hasOwnProperty.call(cache, p)) {
     return process.nextTick(cb.bind(null, null, cache[p]));
   }
 
   var original = p,
-      seenLinks = {},
-      knownHard = {};
+    seenLinks = {},
+    knownHard = {};
 
   // current character position in p
   var pos;
@@ -230,11 +226,11 @@ var realpath = function realpath(p, cache, cb) {
     pos = m[0].length;
     current = m[0];
     base = m[0];
-    previous = '';
+    previous = "";
 
     // On windows, check that the root exists. On unix there is no need.
     if (isWindows && !knownHard[base]) {
-      fs__default['default'].lstat(base, function(err) {
+      fs__default["default"].lstat(base, function (err) {
         if (err) return cb(err);
         knownHard[base] = true;
         LOOP();
@@ -271,7 +267,7 @@ var realpath = function realpath(p, cache, cb) {
       return gotResolvedLink(cache[base]);
     }
 
-    return fs__default['default'].lstat(base, gotStat);
+    return fs__default["default"].lstat(base, gotStat);
   }
 
   function gotStat(err, stat) {
@@ -288,15 +284,15 @@ var realpath = function realpath(p, cache, cb) {
     // call gotTarget as soon as the link target is known
     // dev/ino always return 0 on windows, so skip the check.
     if (!isWindows) {
-      var id = stat.dev.toString(32) + ':' + stat.ino.toString(32);
+      var id = stat.dev.toString(32) + ":" + stat.ino.toString(32);
       if (seenLinks.hasOwnProperty(id)) {
         return gotTarget(null, seenLinks[id], base);
       }
     }
-    fs__default['default'].stat(base, function(err) {
+    fs__default["default"].stat(base, function (err) {
       if (err) return cb(err);
 
-      fs__default['default'].readlink(base, function(err, target) {
+      fs__default["default"].readlink(base, function (err, target) {
         if (!isWindows) seenLinks[id] = target;
         gotTarget(err, target);
       });
@@ -306,21 +302,21 @@ var realpath = function realpath(p, cache, cb) {
   function gotTarget(err, target, base) {
     if (err) return cb(err);
 
-    var resolvedLink = path__default['default'].resolve(previous, target);
+    var resolvedLink = path__default["default"].resolve(previous, target);
     if (cache) cache[base] = resolvedLink;
     gotResolvedLink(resolvedLink);
   }
 
   function gotResolvedLink(resolvedLink) {
     // resolve the link, then start over
-    p = path__default['default'].resolve(resolvedLink, p.slice(pos));
+    p = path__default["default"].resolve(resolvedLink, p.slice(pos));
     start();
   }
 };
 
 var old = {
-	realpathSync: realpathSync,
-	realpath: realpath
+  realpathSync: realpathSync,
+  realpath: realpath,
 };
 
 var fs_realpath = realpath$1;
@@ -330,28 +326,26 @@ realpath$1.realpathSync = realpathSync$1;
 realpath$1.monkeypatch = monkeypatch;
 realpath$1.unmonkeypatch = unmonkeypatch;
 
-
-var origRealpath = fs__default['default'].realpath;
-var origRealpathSync = fs__default['default'].realpathSync;
+var origRealpath = fs__default["default"].realpath;
+var origRealpathSync = fs__default["default"].realpathSync;
 
 var version = process.version;
 var ok = /^v[0-5]\./.test(version);
 
-
-function newError (er) {
-  return er && er.syscall === 'realpath' && (
-    er.code === 'ELOOP' ||
-    er.code === 'ENOMEM' ||
-    er.code === 'ENAMETOOLONG'
-  )
+function newError(er) {
+  return (
+    er &&
+    er.syscall === "realpath" &&
+    (er.code === "ELOOP" || er.code === "ENOMEM" || er.code === "ENAMETOOLONG")
+  );
 }
 
-function realpath$1 (p, cache, cb) {
+function realpath$1(p, cache, cb) {
   if (ok) {
-    return origRealpath(p, cache, cb)
+    return origRealpath(p, cache, cb);
   }
 
-  if (typeof cache === 'function') {
+  if (typeof cache === "function") {
     cb = cache;
     cache = null;
   }
@@ -364,45 +358,47 @@ function realpath$1 (p, cache, cb) {
   });
 }
 
-function realpathSync$1 (p, cache) {
+function realpathSync$1(p, cache) {
   if (ok) {
-    return origRealpathSync(p, cache)
+    return origRealpathSync(p, cache);
   }
 
   try {
-    return origRealpathSync(p, cache)
+    return origRealpathSync(p, cache);
   } catch (er) {
     if (newError(er)) {
-      return old.realpathSync(p, cache)
+      return old.realpathSync(p, cache);
     } else {
-      throw er
+      throw er;
     }
   }
 }
 
-function monkeypatch () {
-  fs__default['default'].realpath = realpath$1;
-  fs__default['default'].realpathSync = realpathSync$1;
+function monkeypatch() {
+  fs__default["default"].realpath = realpath$1;
+  fs__default["default"].realpathSync = realpathSync$1;
 }
 
-function unmonkeypatch () {
-  fs__default['default'].realpath = origRealpath;
-  fs__default['default'].realpathSync = origRealpathSync;
+function unmonkeypatch() {
+  fs__default["default"].realpath = origRealpath;
+  fs__default["default"].realpathSync = origRealpathSync;
 }
 
 var concatMap = function (xs, fn) {
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        var x = fn(xs[i], i);
-        if (isArray(x)) res.push.apply(res, x);
-        else res.push(x);
-    }
-    return res;
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    var x = fn(xs[i], i);
+    if (isArray(x)) res.push.apply(res, x);
+    else res.push(x);
+  }
+  return res;
 };
 
-var isArray = Array.isArray || function (xs) {
-    return Object.prototype.toString.call(xs) === '[object Array]';
-};
+var isArray =
+  Array.isArray ||
+  function (xs) {
+    return Object.prototype.toString.call(xs) === "[object Array]";
+  };
 
 var balancedMatch = balanced;
 function balanced(a, b, str) {
@@ -411,13 +407,15 @@ function balanced(a, b, str) {
 
   var r = range(a, b, str);
 
-  return r && {
-    start: r[0],
-    end: r[1],
-    pre: str.slice(0, r[0]),
-    body: str.slice(r[0] + a.length, r[1]),
-    post: str.slice(r[1] + b.length)
-  };
+  return (
+    r && {
+      start: r[0],
+      end: r[1],
+      pre: str.slice(0, r[0]),
+      body: str.slice(r[0] + a.length, r[1]),
+      post: str.slice(r[1] + b.length),
+    }
+  );
 }
 
 function maybeMatch(reg, str) {
@@ -441,7 +439,7 @@ function range(a, b, str) {
         begs.push(i);
         ai = str.indexOf(a, i + 1);
       } else if (begs.length == 1) {
-        result = [ begs.pop(), bi ];
+        result = [begs.pop(), bi];
       } else {
         beg = begs.pop();
         if (beg < left) {
@@ -456,7 +454,7 @@ function range(a, b, str) {
     }
 
     if (begs.length) {
-      result = [ left, right ];
+      result = [left, right];
     }
   }
 
@@ -465,57 +463,64 @@ function range(a, b, str) {
 
 var braceExpansion = expandTop;
 
-var escSlash = '\0SLASH'+Math.random()+'\0';
-var escOpen = '\0OPEN'+Math.random()+'\0';
-var escClose = '\0CLOSE'+Math.random()+'\0';
-var escComma = '\0COMMA'+Math.random()+'\0';
-var escPeriod = '\0PERIOD'+Math.random()+'\0';
+var escSlash = "\0SLASH" + Math.random() + "\0";
+var escOpen = "\0OPEN" + Math.random() + "\0";
+var escClose = "\0CLOSE" + Math.random() + "\0";
+var escComma = "\0COMMA" + Math.random() + "\0";
+var escPeriod = "\0PERIOD" + Math.random() + "\0";
 
 function numeric(str) {
-  return parseInt(str, 10) == str
-    ? parseInt(str, 10)
-    : str.charCodeAt(0);
+  return parseInt(str, 10) == str ? parseInt(str, 10) : str.charCodeAt(0);
 }
 
 function escapeBraces(str) {
-  return str.split('\\\\').join(escSlash)
-            .split('\\{').join(escOpen)
-            .split('\\}').join(escClose)
-            .split('\\,').join(escComma)
-            .split('\\.').join(escPeriod);
+  return str
+    .split("\\\\")
+    .join(escSlash)
+    .split("\\{")
+    .join(escOpen)
+    .split("\\}")
+    .join(escClose)
+    .split("\\,")
+    .join(escComma)
+    .split("\\.")
+    .join(escPeriod);
 }
 
 function unescapeBraces(str) {
-  return str.split(escSlash).join('\\')
-            .split(escOpen).join('{')
-            .split(escClose).join('}')
-            .split(escComma).join(',')
-            .split(escPeriod).join('.');
+  return str
+    .split(escSlash)
+    .join("\\")
+    .split(escOpen)
+    .join("{")
+    .split(escClose)
+    .join("}")
+    .split(escComma)
+    .join(",")
+    .split(escPeriod)
+    .join(".");
 }
-
 
 // Basically just str.split(","), but handling cases
 // where we have nested braced sections, which should be
 // treated as individual members, like {a,{b,c},d}
 function parseCommaParts(str) {
-  if (!str)
-    return [''];
+  if (!str) return [""];
 
   var parts = [];
-  var m = balancedMatch('{', '}', str);
+  var m = balancedMatch("{", "}", str);
 
-  if (!m)
-    return str.split(',');
+  if (!m) return str.split(",");
 
   var pre = m.pre;
   var body = m.body;
   var post = m.post;
-  var p = pre.split(',');
+  var p = pre.split(",");
 
-  p[p.length-1] += '{' + body + '}';
+  p[p.length - 1] += "{" + body + "}";
   var postParts = parseCommaParts(post);
   if (post.length) {
-    p[p.length-1] += postParts.shift();
+    p[p.length - 1] += postParts.shift();
     p.push.apply(p, postParts);
   }
 
@@ -525,8 +530,7 @@ function parseCommaParts(str) {
 }
 
 function expandTop(str) {
-  if (!str)
-    return [];
+  if (!str) return [];
 
   // I don't know why Bash 4.3 does this, but it does.
   // Anything starting with {} will have the first two bytes preserved
@@ -534,15 +538,15 @@ function expandTop(str) {
   // but a{},b}c will be expanded to [a}c,abc].
   // One could argue that this is a bug in Bash, but since the goal of
   // this module is to match Bash's rules, we escape a leading {}
-  if (str.substr(0, 2) === '{}') {
-    str = '\\{\\}' + str.substr(2);
+  if (str.substr(0, 2) === "{}") {
+    str = "\\{\\}" + str.substr(2);
   }
 
   return expand(escapeBraces(str), true).map(unescapeBraces);
 }
 
 function embrace(str) {
-  return '{' + str + '}';
+  return "{" + str + "}";
 }
 function isPadded(el) {
   return /^-?0\d/.test(el);
@@ -558,17 +562,17 @@ function gte(i, y) {
 function expand(str, isTop) {
   var expansions = [];
 
-  var m = balancedMatch('{', '}', str);
+  var m = balancedMatch("{", "}", str);
   if (!m || /\$$/.test(m.pre)) return [str];
 
   var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
   var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
   var isSequence = isNumericSequence || isAlphaSequence;
-  var isOptions = m.body.indexOf(',') >= 0;
+  var isOptions = m.body.indexOf(",") >= 0;
   if (!isSequence && !isOptions) {
     // {a},b}
     if (m.post.match(/,.*\}/)) {
-      str = m.pre + '{' + m.body + escClose + m.post;
+      str = m.pre + "{" + m.body + escClose + m.post;
       return expand(str);
     }
     return [str];
@@ -583,10 +587,8 @@ function expand(str, isTop) {
       // x{{a,b}}y ==> x{a}y x{b}y
       n = expand(n[0], false).map(embrace);
       if (n.length === 1) {
-        var post = m.post.length
-          ? expand(m.post, false)
-          : [''];
-        return post.map(function(p) {
+        var post = m.post.length ? expand(m.post, false) : [""];
+        return post.map(function (p) {
           return m.pre + n[0] + p;
         });
       }
@@ -598,9 +600,7 @@ function expand(str, isTop) {
 
   // no need to expand pre, since it is guaranteed to be free of brace-sets
   var pre = m.pre;
-  var post = m.post.length
-    ? expand(m.post, false)
-    : [''];
+  var post = m.post.length ? expand(m.post, false) : [""];
 
   var N;
 
@@ -608,9 +608,7 @@ function expand(str, isTop) {
     var x = numeric(n[0]);
     var y = numeric(n[1]);
     var width = Math.max(n[0].length, n[1].length);
-    var incr = n.length == 3
-      ? Math.abs(numeric(n[2]))
-      : 1;
+    var incr = n.length == 3 ? Math.abs(numeric(n[2])) : 1;
     var test = lte;
     var reverse = y < x;
     if (reverse) {
@@ -625,32 +623,30 @@ function expand(str, isTop) {
       var c;
       if (isAlphaSequence) {
         c = String.fromCharCode(i);
-        if (c === '\\')
-          c = '';
+        if (c === "\\") c = "";
       } else {
         c = String(i);
         if (pad) {
           var need = width - c.length;
           if (need > 0) {
-            var z = new Array(need + 1).join('0');
-            if (i < 0)
-              c = '-' + z + c.slice(1);
-            else
-              c = z + c;
+            var z = new Array(need + 1).join("0");
+            if (i < 0) c = "-" + z + c.slice(1);
+            else c = z + c;
           }
         }
       }
       N.push(c);
     }
   } else {
-    N = concatMap(n, function(el) { return expand(el, false) });
+    N = concatMap(n, function (el) {
+      return expand(el, false);
+    });
   }
 
   for (var j = 0; j < N.length; j++) {
     for (var k = 0; k < post.length; k++) {
       var expansion = pre + N[j] + post[k];
-      if (!isTop || isSequence || expansion)
-        expansions.push(expansion);
+      if (!isTop || isSequence || expansion) expansions.push(expansion);
     }
   }
 
@@ -660,61 +656,60 @@ function expand(str, isTop) {
 var minimatch_1 = minimatch;
 minimatch.Minimatch = Minimatch;
 
-var path = { sep: '/' };
+var path = { sep: "/" };
 try {
-  path = path__default['default'];
+  path = path__default["default"];
 } catch (er) {}
 
-var GLOBSTAR = minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {};
-
+var GLOBSTAR = (minimatch.GLOBSTAR = Minimatch.GLOBSTAR = {});
 
 var plTypes = {
-  '!': { open: '(?:(?!(?:', close: '))[^/]*?)'},
-  '?': { open: '(?:', close: ')?' },
-  '+': { open: '(?:', close: ')+' },
-  '*': { open: '(?:', close: ')*' },
-  '@': { open: '(?:', close: ')' }
+  "!": { open: "(?:(?!(?:", close: "))[^/]*?)" },
+  "?": { open: "(?:", close: ")?" },
+  "+": { open: "(?:", close: ")+" },
+  "*": { open: "(?:", close: ")*" },
+  "@": { open: "(?:", close: ")" },
 };
 
 // any single thing other than /
 // don't need to escape / when using new RegExp()
-var qmark = '[^/]';
+var qmark = "[^/]";
 
 // * => any number of characters
-var star = qmark + '*?';
+var star = qmark + "*?";
 
 // ** when dots are allowed.  Anything goes, except .. and .
 // not (^ or / followed by one or two dots followed by $ or /),
 // followed by anything, any number of times.
-var twoStarDot = '(?:(?!(?:\\\/|^)(?:\\.{1,2})($|\\\/)).)*?';
+var twoStarDot = "(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?";
 
 // not a ^ or / followed by a dot,
 // followed by anything, any number of times.
-var twoStarNoDot = '(?:(?!(?:\\\/|^)\\.).)*?';
+var twoStarNoDot = "(?:(?!(?:\\/|^)\\.).)*?";
 
 // characters that need to be escaped in RegExp.
-var reSpecials = charSet('().*{}+?[]^$\\!');
+var reSpecials = charSet("().*{}+?[]^$\\!");
 
 // "abc" -> { a:true, b:true, c:true }
-function charSet (s) {
-  return s.split('').reduce(function (set, c) {
+function charSet(s) {
+  return s.split("").reduce(function (set, c) {
     set[c] = true;
-    return set
-  }, {})
+    return set;
+  }, {});
 }
 
 // normalizes slashes.
 var slashSplit = /\/+/;
 
 minimatch.filter = filter;
-function filter (pattern, options) {
+function filter(pattern, options) {
   options = options || {};
   return function (p, i, list) {
-    return minimatch(p, pattern, options)
-  }
+    return minimatch(p, pattern, options);
+  };
 }
 
-function ext (a, b) {
+function ext(a, b) {
   a = a || {};
   b = b || {};
   var t = {};
@@ -724,63 +719,63 @@ function ext (a, b) {
   Object.keys(a).forEach(function (k) {
     t[k] = a[k];
   });
-  return t
+  return t;
 }
 
 minimatch.defaults = function (def) {
-  if (!def || !Object.keys(def).length) return minimatch
+  if (!def || !Object.keys(def).length) return minimatch;
 
   var orig = minimatch;
 
-  var m = function minimatch (p, pattern, options) {
-    return orig.minimatch(p, pattern, ext(def, options))
+  var m = function minimatch(p, pattern, options) {
+    return orig.minimatch(p, pattern, ext(def, options));
   };
 
-  m.Minimatch = function Minimatch (pattern, options) {
-    return new orig.Minimatch(pattern, ext(def, options))
+  m.Minimatch = function Minimatch(pattern, options) {
+    return new orig.Minimatch(pattern, ext(def, options));
   };
 
-  return m
+  return m;
 };
 
 Minimatch.defaults = function (def) {
-  if (!def || !Object.keys(def).length) return Minimatch
-  return minimatch.defaults(def).Minimatch
+  if (!def || !Object.keys(def).length) return Minimatch;
+  return minimatch.defaults(def).Minimatch;
 };
 
-function minimatch (p, pattern, options) {
-  if (typeof pattern !== 'string') {
-    throw new TypeError('glob pattern string required')
+function minimatch(p, pattern, options) {
+  if (typeof pattern !== "string") {
+    throw new TypeError("glob pattern string required");
   }
 
   if (!options) options = {};
 
   // shortcut: comments match nothing.
-  if (!options.nocomment && pattern.charAt(0) === '#') {
-    return false
+  if (!options.nocomment && pattern.charAt(0) === "#") {
+    return false;
   }
 
   // "" only matches ""
-  if (pattern.trim() === '') return p === ''
+  if (pattern.trim() === "") return p === "";
 
-  return new Minimatch(pattern, options).match(p)
+  return new Minimatch(pattern, options).match(p);
 }
 
-function Minimatch (pattern, options) {
+function Minimatch(pattern, options) {
   if (!(this instanceof Minimatch)) {
-    return new Minimatch(pattern, options)
+    return new Minimatch(pattern, options);
   }
 
-  if (typeof pattern !== 'string') {
-    throw new TypeError('glob pattern string required')
+  if (typeof pattern !== "string") {
+    throw new TypeError("glob pattern string required");
   }
 
   if (!options) options = {};
   pattern = pattern.trim();
 
   // windows support: need to use /, not \
-  if (path.sep !== '/') {
-    pattern = pattern.split(path.sep).join('/');
+  if (path.sep !== "/") {
+    pattern = pattern.split(path.sep).join("/");
   }
 
   this.options = options;
@@ -798,28 +793,28 @@ function Minimatch (pattern, options) {
 Minimatch.prototype.debug = function () {};
 
 Minimatch.prototype.make = make;
-function make () {
+function make() {
   // don't do it more than once.
-  if (this._made) return
+  if (this._made) return;
 
   var pattern = this.pattern;
   var options = this.options;
 
   // empty patterns and comments match nothing.
-  if (!options.nocomment && pattern.charAt(0) === '#') {
+  if (!options.nocomment && pattern.charAt(0) === "#") {
     this.comment = true;
-    return
+    return;
   }
   if (!pattern) {
     this.empty = true;
-    return
+    return;
   }
 
   // step 1: figure out negation, etc.
   this.parseNegate();
 
   // step 2: expand braces
-  var set = this.globSet = this.braceExpand();
+  var set = (this.globSet = this.braceExpand());
 
   if (options.debug) this.debug = console.error;
 
@@ -831,21 +826,21 @@ function make () {
   // set to the GLOBSTAR object for globstar behavior,
   // and will not contain any / characters
   set = this.globParts = set.map(function (s) {
-    return s.split(slashSplit)
+    return s.split(slashSplit);
   });
 
   this.debug(this.pattern, set);
 
   // glob --> regexps
   set = set.map(function (s, si, set) {
-    return s.map(this.parse, this)
+    return s.map(this.parse, this);
   }, this);
 
   this.debug(this.pattern, set);
 
   // filter out everything that didn't compile properly.
   set = set.filter(function (s) {
-    return s.indexOf(false) === -1
+    return s.indexOf(false) === -1;
   });
 
   this.debug(this.pattern, set);
@@ -854,17 +849,15 @@ function make () {
 }
 
 Minimatch.prototype.parseNegate = parseNegate;
-function parseNegate () {
+function parseNegate() {
   var pattern = this.pattern;
   var negate = false;
   var options = this.options;
   var negateOffset = 0;
 
-  if (options.nonegate) return
+  if (options.nonegate) return;
 
-  for (var i = 0, l = pattern.length
-    ; i < l && pattern.charAt(i) === '!'
-    ; i++) {
+  for (var i = 0, l = pattern.length; i < l && pattern.charAt(i) === "!"; i++) {
     negate = !negate;
     negateOffset++;
   }
@@ -884,12 +877,12 @@ function parseNegate () {
 // a{2..}b -> a{2..}b
 // a{b}c -> a{b}c
 minimatch.braceExpand = function (pattern, options) {
-  return braceExpand(pattern, options)
+  return braceExpand(pattern, options);
 };
 
 Minimatch.prototype.braceExpand = braceExpand;
 
-function braceExpand (pattern, options) {
+function braceExpand(pattern, options) {
   if (!options) {
     if (this instanceof Minimatch) {
       options = this.options;
@@ -898,20 +891,18 @@ function braceExpand (pattern, options) {
     }
   }
 
-  pattern = typeof pattern === 'undefined'
-    ? this.pattern : pattern;
+  pattern = typeof pattern === "undefined" ? this.pattern : pattern;
 
-  if (typeof pattern === 'undefined') {
-    throw new TypeError('undefined pattern')
+  if (typeof pattern === "undefined") {
+    throw new TypeError("undefined pattern");
   }
 
-  if (options.nobrace ||
-    !pattern.match(/\{.*\}/)) {
+  if (options.nobrace || !pattern.match(/\{.*\}/)) {
     // shortcut. no need to expand.
-    return [pattern]
+    return [pattern];
   }
 
-  return braceExpansion(pattern)
+  return braceExpansion(pattern);
 }
 
 // parse a component of the expanded set.
@@ -927,18 +918,18 @@ function braceExpand (pattern, options) {
 // default, and can be disabled by setting options.noglobstar.
 Minimatch.prototype.parse = parse;
 var SUBPARSE = {};
-function parse (pattern, isSub) {
+function parse(pattern, isSub) {
   if (pattern.length > 1024 * 64) {
-    throw new TypeError('pattern is too long')
+    throw new TypeError("pattern is too long");
   }
 
   var options = this.options;
 
   // shortcuts
-  if (!options.noglobstar && pattern === '**') return GLOBSTAR
-  if (pattern === '') return ''
+  if (!options.noglobstar && pattern === "**") return GLOBSTAR;
+  if (pattern === "") return "";
 
-  var re = '';
+  var re = "";
   var hasMagic = !!options.nocase;
   var escaping = false;
   // ? => one single character
@@ -950,96 +941,101 @@ function parse (pattern, isSub) {
   var classStart = -1;
   // . and .. never match anything that doesn't start with .,
   // even when options.dot is set.
-  var patternStart = pattern.charAt(0) === '.' ? '' // anything
-  // not (start or / followed by . or .. followed by / or end)
-  : options.dot ? '(?!(?:^|\\\/)\\.{1,2}(?:$|\\\/))'
-  : '(?!\\.)';
+  var patternStart =
+    pattern.charAt(0) === "."
+      ? "" // anything
+      : // not (start or / followed by . or .. followed by / or end)
+      options.dot
+      ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))"
+      : "(?!\\.)";
   var self = this;
 
-  function clearStateChar () {
+  function clearStateChar() {
     if (stateChar) {
       // we had some state-tracking character
       // that wasn't consumed by this pass.
       switch (stateChar) {
-        case '*':
+        case "*":
           re += star;
           hasMagic = true;
-        break
-        case '?':
+          break;
+        case "?":
           re += qmark;
           hasMagic = true;
-        break
+          break;
         default:
-          re += '\\' + stateChar;
-        break
+          re += "\\" + stateChar;
+          break;
       }
-      self.debug('clearStateChar %j %j', stateChar, re);
+      self.debug("clearStateChar %j %j", stateChar, re);
       stateChar = false;
     }
   }
 
-  for (var i = 0, len = pattern.length, c
-    ; (i < len) && (c = pattern.charAt(i))
-    ; i++) {
-    this.debug('%s\t%s %s %j', pattern, i, re, c);
+  for (
+    var i = 0, len = pattern.length, c;
+    i < len && (c = pattern.charAt(i));
+    i++
+  ) {
+    this.debug("%s\t%s %s %j", pattern, i, re, c);
 
     // skip over any that are escaped.
     if (escaping && reSpecials[c]) {
-      re += '\\' + c;
+      re += "\\" + c;
       escaping = false;
-      continue
+      continue;
     }
 
     switch (c) {
-      case '/':
+      case "/":
         // completely not allowed, even escaped.
         // Should already be path-split by now.
-        return false
+        return false;
 
-      case '\\':
+      case "\\":
         clearStateChar();
         escaping = true;
-      continue
+        continue;
 
       // the various stateChar values
       // for the "extglob" stuff.
-      case '?':
-      case '*':
-      case '+':
-      case '@':
-      case '!':
-        this.debug('%s\t%s %s %j <-- stateChar', pattern, i, re, c);
+      case "?":
+      case "*":
+      case "+":
+      case "@":
+      case "!":
+        this.debug("%s\t%s %s %j <-- stateChar", pattern, i, re, c);
 
         // all of those are literals inside a class, except that
         // the glob [!a] means [^a] in regexp
         if (inClass) {
-          this.debug('  in class');
-          if (c === '!' && i === classStart + 1) c = '^';
+          this.debug("  in class");
+          if (c === "!" && i === classStart + 1) c = "^";
           re += c;
-          continue
+          continue;
         }
 
         // if we already have a stateChar, then it means
         // that there was something like ** or +? in there.
         // Handle the stateChar, then proceed with this one.
-        self.debug('call clearStateChar %j', stateChar);
+        self.debug("call clearStateChar %j", stateChar);
         clearStateChar();
         stateChar = c;
         // if extglob is disabled, then +(asdf|foo) isn't a thing.
         // just clear the statechar *now*, rather than even diving into
         // the patternList stuff.
         if (options.noext) clearStateChar();
-      continue
+        continue;
 
-      case '(':
+      case "(":
         if (inClass) {
-          re += '(';
-          continue
+          re += "(";
+          continue;
         }
 
         if (!stateChar) {
-          re += '\\(';
-          continue
+          re += "\\(";
+          continue;
         }
 
         patternListStack.push({
@@ -1047,18 +1043,18 @@ function parse (pattern, isSub) {
           start: i - 1,
           reStart: re.length,
           open: plTypes[stateChar].open,
-          close: plTypes[stateChar].close
+          close: plTypes[stateChar].close,
         });
         // negation is (?:(?!js)[^/]*)
-        re += stateChar === '!' ? '(?:(?!(?:' : '(?:';
-        this.debug('plType %j %j', stateChar, re);
+        re += stateChar === "!" ? "(?:(?!(?:" : "(?:";
+        this.debug("plType %j %j", stateChar, re);
         stateChar = false;
-      continue
+        continue;
 
-      case ')':
+      case ")":
         if (inClass || !patternListStack.length) {
-          re += '\\)';
-          continue
+          re += "\\)";
+          continue;
         }
 
         clearStateChar();
@@ -1067,48 +1063,48 @@ function parse (pattern, isSub) {
         // negation is (?:(?!js)[^/]*)
         // The others are (?:<pattern>)<type>
         re += pl.close;
-        if (pl.type === '!') {
+        if (pl.type === "!") {
           negativeLists.push(pl);
         }
         pl.reEnd = re.length;
-      continue
+        continue;
 
-      case '|':
+      case "|":
         if (inClass || !patternListStack.length || escaping) {
-          re += '\\|';
+          re += "\\|";
           escaping = false;
-          continue
+          continue;
         }
 
         clearStateChar();
-        re += '|';
-      continue
+        re += "|";
+        continue;
 
       // these are mostly the same in regexp and glob
-      case '[':
+      case "[":
         // swallow any state-tracking char before the [
         clearStateChar();
 
         if (inClass) {
-          re += '\\' + c;
-          continue
+          re += "\\" + c;
+          continue;
         }
 
         inClass = true;
         classStart = i;
         reClassStart = re.length;
         re += c;
-      continue
+        continue;
 
-      case ']':
+      case "]":
         //  a right bracket shall lose its special
         //  meaning and represent itself in
         //  a bracket expression if it occurs
         //  first in the list.  -- POSIX.2 2.8.3.2
         if (i === classStart + 1 || !inClass) {
-          re += '\\' + c;
+          re += "\\" + c;
           escaping = false;
-          continue
+          continue;
         }
 
         // handle the case where we left a class open.
@@ -1123,14 +1119,14 @@ function parse (pattern, isSub) {
           // to do safely.  For now, this is safe and works.
           var cs = pattern.substring(classStart + 1, i);
           try {
-            RegExp('[' + cs + ']');
+            RegExp("[" + cs + "]");
           } catch (er) {
             // not a valid class!
             var sp = this.parse(cs, SUBPARSE);
-            re = re.substr(0, reClassStart) + '\\[' + sp[0] + '\\]';
+            re = re.substr(0, reClassStart) + "\\[" + sp[0] + "\\]";
             hasMagic = hasMagic || sp[1];
             inClass = false;
-            continue
+            continue;
           }
         }
 
@@ -1138,7 +1134,7 @@ function parse (pattern, isSub) {
         hasMagic = true;
         inClass = false;
         re += c;
-      continue
+        continue;
 
       default:
         // swallow any state char that wasn't consumed
@@ -1147,13 +1143,11 @@ function parse (pattern, isSub) {
         if (escaping) {
           // no need
           escaping = false;
-        } else if (reSpecials[c]
-          && !(c === '^' && inClass)) {
-          re += '\\';
+        } else if (reSpecials[c] && !(c === "^" && inClass)) {
+          re += "\\";
         }
 
         re += c;
-
     } // switch
   } // for
 
@@ -1166,7 +1160,7 @@ function parse (pattern, isSub) {
     // any characters that were passed through as-is
     cs = pattern.substr(classStart + 1);
     sp = this.parse(cs, SUBPARSE);
-    re = re.substr(0, reClassStart) + '\\[' + sp[0];
+    re = re.substr(0, reClassStart) + "\\[" + sp[0];
     hasMagic = hasMagic || sp[1];
   }
 
@@ -1178,12 +1172,12 @@ function parse (pattern, isSub) {
   // | chars that were already escaped.
   for (pl = patternListStack.pop(); pl; pl = patternListStack.pop()) {
     var tail = re.slice(pl.reStart + pl.open.length);
-    this.debug('setting tail', re, pl);
+    this.debug("setting tail", re, pl);
     // maybe some even number of \, then maybe 1 \, followed by a |
     tail = tail.replace(/((?:\\{2}){0,64})(\\?)\|/g, function (_, $1, $2) {
       if (!$2) {
         // the | isn't already escaped, so escape it.
-        $2 = '\\';
+        $2 = "\\";
       }
 
       // need to escape all those slashes *again*, without escaping the
@@ -1192,32 +1186,31 @@ function parse (pattern, isSub) {
       // it exactly after itself.  That's why this trick works.
       //
       // I am sorry that you have to see this.
-      return $1 + $1 + $2 + '|'
+      return $1 + $1 + $2 + "|";
     });
 
-    this.debug('tail=%j\n   %s', tail, tail, pl, re);
-    var t = pl.type === '*' ? star
-      : pl.type === '?' ? qmark
-      : '\\' + pl.type;
+    this.debug("tail=%j\n   %s", tail, tail, pl, re);
+    var t = pl.type === "*" ? star : pl.type === "?" ? qmark : "\\" + pl.type;
 
     hasMagic = true;
-    re = re.slice(0, pl.reStart) + t + '\\(' + tail;
+    re = re.slice(0, pl.reStart) + t + "\\(" + tail;
   }
 
   // handle trailing things that only matter at the very end.
   clearStateChar();
   if (escaping) {
     // trailing \\
-    re += '\\\\';
+    re += "\\\\";
   }
 
   // only need to apply the nodot start if the re starts with
   // something that could conceivably capture a dot
   var addPatternStart = false;
   switch (re.charAt(0)) {
-    case '.':
-    case '[':
-    case '(': addPatternStart = true;
+    case ".":
+    case "[":
+    case "(":
+      addPatternStart = true;
   }
 
   // Hack to work around lack of negative lookbehind in JS
@@ -1238,16 +1231,16 @@ function parse (pattern, isSub) {
     // Handle nested stuff like *(*.js|!(*.json)), where open parens
     // mean that we should *not* include the ) in the bit that is considered
     // "after" the negated section.
-    var openParensBefore = nlBefore.split('(').length - 1;
+    var openParensBefore = nlBefore.split("(").length - 1;
     var cleanAfter = nlAfter;
     for (i = 0; i < openParensBefore; i++) {
-      cleanAfter = cleanAfter.replace(/\)[+*?]?/, '');
+      cleanAfter = cleanAfter.replace(/\)[+*?]?/, "");
     }
     nlAfter = cleanAfter;
 
-    var dollar = '';
-    if (nlAfter === '' && isSub !== SUBPARSE) {
-      dollar = '$';
+    var dollar = "";
+    if (nlAfter === "" && isSub !== SUBPARSE) {
+      dollar = "$";
     }
     var newRe = nlBefore + nlFirst + nlAfter + dollar + nlLast;
     re = newRe;
@@ -1256,8 +1249,8 @@ function parse (pattern, isSub) {
   // if the re is not "" at this point, then we need to make sure
   // it doesn't match against an empty path part.
   // Otherwise a/* will match a/, which it should not.
-  if (re !== '' && hasMagic) {
-    re = '(?=.)' + re;
+  if (re !== "" && hasMagic) {
+    re = "(?=.)" + re;
   }
 
   if (addPatternStart) {
@@ -1266,40 +1259,40 @@ function parse (pattern, isSub) {
 
   // parsing just a piece of a larger pattern.
   if (isSub === SUBPARSE) {
-    return [re, hasMagic]
+    return [re, hasMagic];
   }
 
   // skip the regexp for non-magical patterns
   // unescape anything in it, though, so that it'll be
   // an exact match against a file etc.
   if (!hasMagic) {
-    return globUnescape(pattern)
+    return globUnescape(pattern);
   }
 
-  var flags = options.nocase ? 'i' : '';
+  var flags = options.nocase ? "i" : "";
   try {
-    var regExp = new RegExp('^' + re + '$', flags);
+    var regExp = new RegExp("^" + re + "$", flags);
   } catch (er) {
     // If it was an invalid regular expression, then it can't match
     // anything.  This trick looks for a character after the end of
     // the string, which is of course impossible, except in multi-line
     // mode, but it's not a /m regex.
-    return new RegExp('$.')
+    return new RegExp("$.");
   }
 
   regExp._glob = pattern;
   regExp._src = re;
 
-  return regExp
+  return regExp;
 }
 
 minimatch.makeRe = function (pattern, options) {
-  return new Minimatch(pattern, options || {}).makeRe()
+  return new Minimatch(pattern, options || {}).makeRe();
 };
 
 Minimatch.prototype.makeRe = makeRe;
-function makeRe () {
-  if (this.regexp || this.regexp === false) return this.regexp
+function makeRe() {
+  if (this.regexp || this.regexp === false) return this.regexp;
 
   // at this point, this.set is a 2d array of partial
   // pattern strings, or "**".
@@ -1311,70 +1304,78 @@ function makeRe () {
 
   if (!set.length) {
     this.regexp = false;
-    return this.regexp
+    return this.regexp;
   }
   var options = this.options;
 
-  var twoStar = options.noglobstar ? star
-    : options.dot ? twoStarDot
+  var twoStar = options.noglobstar
+    ? star
+    : options.dot
+    ? twoStarDot
     : twoStarNoDot;
-  var flags = options.nocase ? 'i' : '';
+  var flags = options.nocase ? "i" : "";
 
-  var re = set.map(function (pattern) {
-    return pattern.map(function (p) {
-      return (p === GLOBSTAR) ? twoStar
-      : (typeof p === 'string') ? regExpEscape(p)
-      : p._src
-    }).join('\\\/')
-  }).join('|');
+  var re = set
+    .map(function (pattern) {
+      return pattern
+        .map(function (p) {
+          return p === GLOBSTAR
+            ? twoStar
+            : typeof p === "string"
+            ? regExpEscape(p)
+            : p._src;
+        })
+        .join("\\/");
+    })
+    .join("|");
 
   // must match entire pattern
   // ending in a * or ** will make it less strict.
-  re = '^(?:' + re + ')$';
+  re = "^(?:" + re + ")$";
 
   // can match anything, as long as it's not this.
-  if (this.negate) re = '^(?!' + re + ').*$';
+  if (this.negate) re = "^(?!" + re + ").*$";
 
   try {
     this.regexp = new RegExp(re, flags);
   } catch (ex) {
     this.regexp = false;
   }
-  return this.regexp
+  return this.regexp;
 }
 
 minimatch.match = function (list, pattern, options) {
   options = options || {};
   var mm = new Minimatch(pattern, options);
   list = list.filter(function (f) {
-    return mm.match(f)
+    return mm.match(f);
   });
   if (mm.options.nonull && !list.length) {
     list.push(pattern);
   }
-  return list
+  return list;
 };
 
 Minimatch.prototype.match = match;
-function match (f, partial) {
-  this.debug('match', f, this.pattern);
+function match(f, partial) {
+  this.debug("match", f, this.pattern);
   // short-circuit in the case of busted things.
   // comments, etc.
-  if (this.comment) return false
-  if (this.empty) return f === ''
+  if (this.comment) return false;
+  if (this.empty) return f === "";
 
-  if (f === '/' && partial) return true
+  if (f === "/" && partial) return true;
 
   var options = this.options;
 
   // windows: need to use /, not \
-  if (path.sep !== '/') {
-    f = f.split(path.sep).join('/');
+  if (path.sep !== "/") {
+    f = f.split(path.sep).join("/");
   }
 
   // treat the test path as a set of pathparts.
   f = f.split(slashSplit);
-  this.debug(this.pattern, 'split', f);
+  this.debug(this.pattern, "split", f);
 
   // just ONE of the pattern sets in this.set needs to match
   // in order for it to be valid.  If negating, then just one
@@ -1382,14 +1383,14 @@ function match (f, partial) {
   // Either way, return on the first hit.
 
   var set = this.set;
-  this.debug(this.pattern, 'set', set);
+  this.debug(this.pattern, "set", set);
 
   // Find the basename of the path by looking for the last non-empty segment
   var filename;
   var i;
   for (i = f.length - 1; i >= 0; i--) {
     filename = f[i];
-    if (filename) break
+    if (filename) break;
   }
 
   for (i = 0; i < set.length; i++) {
@@ -1400,15 +1401,15 @@ function match (f, partial) {
     }
     var hit = this.matchOne(file, pattern, partial);
     if (hit) {
-      if (options.flipNegate) return true
-      return !this.negate
+      if (options.flipNegate) return true;
+      return !this.negate;
     }
   }
 
   // didn't get any hits.  this is success if it's a negative
   // pattern, failure otherwise.
-  if (options.flipNegate) return false
-  return this.negate
+  if (options.flipNegate) return false;
+  return this.negate;
 }
 
 // set partial to true to test if, for example,
@@ -1419,18 +1420,16 @@ function match (f, partial) {
 Minimatch.prototype.matchOne = function (file, pattern, partial) {
   var options = this.options;
 
-  this.debug('matchOne',
-    { 'this': this, file: file, pattern: pattern });
+  this.debug("matchOne", { this: this, file: file, pattern: pattern });
 
-  this.debug('matchOne', file.length, pattern.length);
+  this.debug("matchOne", file.length, pattern.length);
 
-  for (var fi = 0,
-      pi = 0,
-      fl = file.length,
-      pl = pattern.length
-      ; (fi < fl) && (pi < pl)
-      ; fi++, pi++) {
-    this.debug('matchOne loop');
+  for (
+    var fi = 0, pi = 0, fl = file.length, pl = pattern.length;
+    fi < fl && pi < pl;
+    fi++, pi++
+  ) {
+    this.debug("matchOne loop");
     var p = pattern[pi];
     var f = file[fi];
 
@@ -1438,10 +1437,10 @@ Minimatch.prototype.matchOne = function (file, pattern, partial) {
 
     // should be impossible.
     // some invalid regexp stuff in the set.
-    if (p === false) return false
+    if (p === false) return false;
 
     if (p === GLOBSTAR) {
-      this.debug('GLOBSTAR', [pattern, p, f]);
+      this.debug("GLOBSTAR", [pattern, p, f]);
 
       // "**"
       // a/**/b/**/c would match the following:
@@ -1468,7 +1467,7 @@ Minimatch.prototype.matchOne = function (file, pattern, partial) {
       var fr = fi;
       var pr = pi + 1;
       if (pr === pl) {
-        this.debug('** at the end');
+        this.debug("** at the end");
         // a ** at the end will just swallow the rest.
         // We have found a match.
         // however, it will not swallow /.x, unless
@@ -1476,34 +1475,41 @@ Minimatch.prototype.matchOne = function (file, pattern, partial) {
         // . and .. are *never* matched by **, for explosively
         // exponential reasons.
         for (; fi < fl; fi++) {
-          if (file[fi] === '.' || file[fi] === '..' ||
-            (!options.dot && file[fi].charAt(0) === '.')) return false
+          if (
+            file[fi] === "." ||
+            file[fi] === ".." ||
+            (!options.dot && file[fi].charAt(0) === ".")
+          )
+            return false;
         }
-        return true
+        return true;
       }
 
       // ok, let's see if we can swallow whatever we can.
       while (fr < fl) {
         var swallowee = file[fr];
 
-        this.debug('\nglobstar while', file, fr, pattern, pr, swallowee);
+        this.debug("\nglobstar while", file, fr, pattern, pr, swallowee);
 
         // XXX remove this slice.  Just pass the start index.
         if (this.matchOne(file.slice(fr), pattern.slice(pr), partial)) {
-          this.debug('globstar found match!', fr, fl, swallowee);
+          this.debug("globstar found match!", fr, fl, swallowee);
           // found a match.
-          return true
+          return true;
         } else {
           // can't swallow "." or ".." ever.
           // can only swallow ".foo" when explicitly asked.
-          if (swallowee === '.' || swallowee === '..' ||
-            (!options.dot && swallowee.charAt(0) === '.')) {
-            this.debug('dot detected!', file, fr, pattern, pr);
-            break
+          if (
+            swallowee === "." ||
+            swallowee === ".." ||
+            (!options.dot && swallowee.charAt(0) === ".")
+          ) {
+            this.debug("dot detected!", file, fr, pattern, pr);
+            break;
           }
 
           // ** swallows a segment, and continue.
-          this.debug('globstar swallow a segment, and continue');
+          this.debug("globstar swallow a segment, and continue");
           fr++;
         }
       }
@@ -1513,29 +1519,29 @@ Minimatch.prototype.matchOne = function (file, pattern, partial) {
       // If there's more *pattern* left, then
       if (partial) {
         // ran out of file
-        this.debug('\n>>> no match, partial?', file, fr, pattern, pr);
-        if (fr === fl) return true
+        this.debug("\n>>> no match, partial?", file, fr, pattern, pr);
+        if (fr === fl) return true;
       }
-      return false
+      return false;
     }
 
     // something other than **
     // non-magic patterns just have to match exactly
     // patterns with magic have been turned into regexps.
     var hit;
-    if (typeof p === 'string') {
+    if (typeof p === "string") {
       if (options.nocase) {
         hit = f.toLowerCase() === p.toLowerCase();
       } else {
         hit = f === p;
       }
-      this.debug('string match', p, f, hit);
+      this.debug("string match", p, f, hit);
     } else {
       hit = f.match(p);
-      this.debug('pattern match', p, f, hit);
+      this.debug("pattern match", p, f, hit);
     }
 
-    if (!hit) return false
+    if (!hit) return false;
   }
 
   // Note: ending in / means that we'll get a final ""
@@ -1553,96 +1559,96 @@ Minimatch.prototype.matchOne = function (file, pattern, partial) {
   if (fi === fl && pi === pl) {
     // ran out of pattern and filename at the same time.
     // an exact hit!
-    return true
+    return true;
   } else if (fi === fl) {
     // ran out of file, but still had pattern left.
     // this is ok if we're doing the match as part of
     // a glob fs traversal.
-    return partial
+    return partial;
   } else if (pi === pl) {
     // ran out of pattern, still have file left.
     // this is only acceptable if we're on the very last
     // empty segment of a file with a trailing slash.
     // a/* should match a/b/
-    var emptyFileEnd = (fi === fl - 1) && (file[fi] === '');
-    return emptyFileEnd
+    var emptyFileEnd = fi === fl - 1 && file[fi] === "";
+    return emptyFileEnd;
   }
 
   // should be unreachable.
-  throw new Error('wtf?')
+  throw new Error("wtf?");
 };
 
 // replace stuff like \* with *
-function globUnescape (s) {
-  return s.replace(/\\(.)/g, '$1')
+function globUnescape(s) {
+  return s.replace(/\\(.)/g, "$1");
 }
 
-function regExpEscape (s) {
-  return s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
+function regExpEscape(s) {
+  return s.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
 function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  return (module = { exports: {} }), fn(module, module.exports), module.exports;
 }
 
 var inherits_browser = createCommonjsModule(function (module) {
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    if (superCtor) {
-      ctor.super_ = superCtor;
-      ctor.prototype = Object.create(superCtor.prototype, {
-        constructor: {
-          value: ctor,
-          enumerable: false,
-          writable: true,
-          configurable: true
-        }
-      });
-    }
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    if (superCtor) {
-      ctor.super_ = superCtor;
-      var TempCtor = function () {};
-      TempCtor.prototype = superCtor.prototype;
-      ctor.prototype = new TempCtor();
-      ctor.prototype.constructor = ctor;
-    }
-  };
-}
+  if (typeof Object.create === "function") {
+    // implementation from standard node.js 'util' module
+    module.exports = function inherits(ctor, superCtor) {
+      if (superCtor) {
+        ctor.super_ = superCtor;
+        ctor.prototype = Object.create(superCtor.prototype, {
+          constructor: {
+            value: ctor,
+            enumerable: false,
+            writable: true,
+            configurable: true,
+          },
+        });
+      }
+    };
+  } else {
+    // old school shim for old browsers
+    module.exports = function inherits(ctor, superCtor) {
+      if (superCtor) {
+        ctor.super_ = superCtor;
+        var TempCtor = function () {};
+        TempCtor.prototype = superCtor.prototype;
+        ctor.prototype = new TempCtor();
+        ctor.prototype.constructor = ctor;
+      }
+    };
+  }
 });
 
 var inherits = createCommonjsModule(function (module) {
-try {
-  var util = util__default['default'];
-  /* istanbul ignore next */
-  if (typeof util.inherits !== 'function') throw '';
-  module.exports = util.inherits;
-} catch (e) {
-  /* istanbul ignore next */
-  module.exports = inherits_browser;
-}
+  try {
+    var util = util__default["default"];
+    /* istanbul ignore next */
+    if (typeof util.inherits !== "function") throw "";
+    module.exports = util.inherits;
+  } catch (e) {
+    /* istanbul ignore next */
+    module.exports = inherits_browser;
+  }
 });
 
 function posix(path) {
-	return path.charAt(0) === '/';
+  return path.charAt(0) === "/";
 }
 
 function win32(path) {
-	// https://github.com/nodejs/node/blob/b3fcc245fb25539909ef1d5eaa01dbf92e168633/lib/path.js#L56
-	var splitDeviceRe = /^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/]+[^\\\/]+)?([\\\/])?([\s\S]*?)$/;
-	var result = splitDeviceRe.exec(path);
-	var device = result[1] || '';
-	var isUnc = Boolean(device && device.charAt(1) !== ':');
+  // https://github.com/nodejs/node/blob/b3fcc245fb25539909ef1d5eaa01dbf92e168633/lib/path.js#L56
+  var splitDeviceRe = /^([a-zA-Z]:|[\\\/]{2}[^\\\/]+[\\\/]+[^\\\/]+)?([\\\/])?([\s\S]*?)$/;
+  var result = splitDeviceRe.exec(path);
+  var device = result[1] || "";
+  var isUnc = Boolean(device && device.charAt(1) !== ":");
 
-	// UNC paths are always absolute
-	return Boolean(result[2] || isUnc);
+  // UNC paths are always absolute
+  return Boolean(result[2] || isUnc);
 }
 
-var pathIsAbsolute = process.platform === 'win32' ? win32 : posix;
+var pathIsAbsolute = process.platform === "win32" ? win32 : posix;
 var posix_1 = posix;
 var win32_1 = win32;
 pathIsAbsolute.posix = posix_1;
@@ -1658,28 +1664,24 @@ var mark_1 = mark;
 var isIgnored_1 = isIgnored;
 var childrenIgnored_1 = childrenIgnored;
 
-function ownProp (obj, field) {
-  return Object.prototype.hasOwnProperty.call(obj, field)
+function ownProp(obj, field) {
+  return Object.prototype.hasOwnProperty.call(obj, field);
 }
-
-
-
 
 var Minimatch$1 = minimatch_1.Minimatch;
 
-function alphasorti (a, b) {
-  return a.toLowerCase().localeCompare(b.toLowerCase())
+function alphasorti(a, b) {
+  return a.toLowerCase().localeCompare(b.toLowerCase());
 }
 
-function alphasort (a, b) {
-  return a.localeCompare(b)
+function alphasort(a, b) {
+  return a.localeCompare(b);
 }
 
-function setupIgnores (self, options) {
+function setupIgnores(self, options) {
   self.ignore = options.ignore || [];
 
-  if (!Array.isArray(self.ignore))
-    self.ignore = [self.ignore];
+  if (!Array.isArray(self.ignore)) self.ignore = [self.ignore];
 
   if (self.ignore.length) {
     self.ignore = self.ignore.map(ignoreMap);
@@ -1687,27 +1689,26 @@ function setupIgnores (self, options) {
 }
 
 // ignore patterns are always in dot:true mode.
-function ignoreMap (pattern) {
+function ignoreMap(pattern) {
   var gmatcher = null;
-  if (pattern.slice(-3) === '/**') {
-    var gpattern = pattern.replace(/(\/\*\*)+$/, '');
+  if (pattern.slice(-3) === "/**") {
+    var gpattern = pattern.replace(/(\/\*\*)+$/, "");
     gmatcher = new Minimatch$1(gpattern, { dot: true });
   }
 
   return {
     matcher: new Minimatch$1(pattern, { dot: true }),
-    gmatcher: gmatcher
-  }
+    gmatcher: gmatcher,
+  };
 }
 
-function setopts (self, pattern, options) {
-  if (!options)
-    options = {};
+function setopts(self, pattern, options) {
+  if (!options) options = {};
 
   // base-matching: just use globstar for that.
   if (options.matchBase && -1 === pattern.indexOf("/")) {
     if (options.noglobstar) {
-      throw new Error("base matching requires globstar")
+      throw new Error("base matching requires globstar");
     }
     pattern = "**/" + pattern;
   }
@@ -1721,8 +1722,7 @@ function setopts (self, pattern, options) {
   self.dot = !!options.dot;
   self.mark = !!options.mark;
   self.nodir = !!options.nodir;
-  if (self.nodir)
-    self.mark = true;
+  if (self.nodir) self.mark = true;
   self.sync = !!options.sync;
   self.nounique = !!options.nounique;
   self.nonull = !!options.nonull;
@@ -1741,17 +1741,15 @@ function setopts (self, pattern, options) {
 
   self.changedCwd = false;
   var cwd = process.cwd();
-  if (!ownProp(options, "cwd"))
-    self.cwd = cwd;
+  if (!ownProp(options, "cwd")) self.cwd = cwd;
   else {
-    self.cwd = path__default['default'].resolve(options.cwd);
+    self.cwd = path__default["default"].resolve(options.cwd);
     self.changedCwd = self.cwd !== cwd;
   }
 
-  self.root = options.root || path__default['default'].resolve(self.cwd, "/");
-  self.root = path__default['default'].resolve(self.root);
-  if (process.platform === "win32")
-    self.root = self.root.replace(/\\/g, "/");
+  self.root = options.root || path__default["default"].resolve(self.cwd, "/");
+  self.root = path__default["default"].resolve(self.root);
+  if (process.platform === "win32") self.root = self.root.replace(/\\/g, "/");
 
   // TODO: is an absolute `cwd` supposed to be resolved against `root`?
   // e.g. { cwd: '/test', root: __dirname } === path.join(__dirname, '/test')
@@ -1769,26 +1767,23 @@ function setopts (self, pattern, options) {
   self.options = self.minimatch.options;
 }
 
-function finish (self) {
+function finish(self) {
   var nou = self.nounique;
   var all = nou ? [] : Object.create(null);
 
-  for (var i = 0, l = self.matches.length; i < l; i ++) {
+  for (var i = 0, l = self.matches.length; i < l; i++) {
     var matches = self.matches[i];
     if (!matches || Object.keys(matches).length === 0) {
       if (self.nonull) {
         // do like the shell, and spit out the literal glob
         var literal = self.minimatch.globSet[i];
-        if (nou)
-          all.push(literal);
-        else
-          all[literal] = true;
+        if (nou) all.push(literal);
+        else all[literal] = true;
       }
     } else {
       // had matches
       var m = Object.keys(matches);
-      if (nou)
-        all.push.apply(all, m);
+      if (nou) all.push.apply(all, m);
       else
         m.forEach(function (m) {
           all[m] = true;
@@ -1796,11 +1791,9 @@ function finish (self) {
     }
   }
 
-  if (!nou)
-    all = Object.keys(all);
+  if (!nou) all = Object.keys(all);
 
-  if (!self.nosort)
-    all = all.sort(self.nocase ? alphasorti : alphasort);
+  if (!self.nosort) all = all.sort(self.nocase ? alphasorti : alphasort);
 
   // at *some* point we statted all of these
   if (self.mark) {
@@ -1809,35 +1802,32 @@ function finish (self) {
     }
     if (self.nodir) {
       all = all.filter(function (e) {
-        var notDir = !(/\/$/.test(e));
+        var notDir = !/\/$/.test(e);
         var c = self.cache[e] || self.cache[makeAbs(self, e)];
-        if (notDir && c)
-          notDir = c !== 'DIR' && !Array.isArray(c);
-        return notDir
+        if (notDir && c) notDir = c !== "DIR" && !Array.isArray(c);
+        return notDir;
       });
     }
   }
 
   if (self.ignore.length)
-    all = all.filter(function(m) {
-      return !isIgnored(self, m)
+    all = all.filter(function (m) {
+      return !isIgnored(self, m);
     });
 
   self.found = all;
 }
 
-function mark (self, p) {
+function mark(self, p) {
   var abs = makeAbs(self, p);
   var c = self.cache[abs];
   var m = p;
   if (c) {
-    var isDir = c === 'DIR' || Array.isArray(c);
-    var slash = p.slice(-1) === '/';
+    var isDir = c === "DIR" || Array.isArray(c);
+    var slash = p.slice(-1) === "/";
 
-    if (isDir && !slash)
-      m += '/';
-    else if (!isDir && slash)
-      m = m.slice(0, -1);
+    if (isDir && !slash) m += "/";
+    else if (!isDir && slash) m = m.slice(0, -1);
 
     if (m !== p) {
       var mabs = makeAbs(self, m);
@@ -1846,59 +1836,57 @@ function mark (self, p) {
     }
   }
 
-  return m
+  return m;
 }
 
 // lotta situps...
-function makeAbs (self, f) {
+function makeAbs(self, f) {
   var abs = f;
-  if (f.charAt(0) === '/') {
-    abs = path__default['default'].join(self.root, f);
-  } else if (pathIsAbsolute(f) || f === '') {
+  if (f.charAt(0) === "/") {
+    abs = path__default["default"].join(self.root, f);
+  } else if (pathIsAbsolute(f) || f === "") {
     abs = f;
   } else if (self.changedCwd) {
-    abs = path__default['default'].resolve(self.cwd, f);
+    abs = path__default["default"].resolve(self.cwd, f);
   } else {
-    abs = path__default['default'].resolve(f);
+    abs = path__default["default"].resolve(f);
   }
 
-  if (process.platform === 'win32')
-    abs = abs.replace(/\\/g, '/');
+  if (process.platform === "win32") abs = abs.replace(/\\/g, "/");
 
-  return abs
+  return abs;
 }
-
 
 // Return true, if pattern ends with globstar '**', for the accompanying parent directory.
 // Ex:- If node_modules/** is the pattern, add 'node_modules' to ignore list along with it's contents
-function isIgnored (self, path) {
-  if (!self.ignore.length)
-    return false
+function isIgnored(self, path) {
+  if (!self.ignore.length) return false;
 
-  return self.ignore.some(function(item) {
-    return item.matcher.match(path) || !!(item.gmatcher && item.gmatcher.match(path))
-  })
+  return self.ignore.some(function (item) {
+    return (
+      item.matcher.match(path) || !!(item.gmatcher && item.gmatcher.match(path))
+    );
+  });
 }
 
-function childrenIgnored (self, path) {
-  if (!self.ignore.length)
-    return false
+function childrenIgnored(self, path) {
+  if (!self.ignore.length) return false;
 
-  return self.ignore.some(function(item) {
-    return !!(item.gmatcher && item.gmatcher.match(path))
-  })
+  return self.ignore.some(function (item) {
+    return !!(item.gmatcher && item.gmatcher.match(path));
+  });
 }
 
 var common = {
-	alphasort: alphasort_1,
-	alphasorti: alphasorti_1,
-	setopts: setopts_1,
-	ownProp: ownProp_1,
-	makeAbs: makeAbs_1,
-	finish: finish_1,
-	mark: mark_1,
-	isIgnored: isIgnored_1,
-	childrenIgnored: childrenIgnored_1
+  alphasort: alphasort_1,
+  alphasorti: alphasorti_1,
+  setopts: setopts_1,
+  ownProp: ownProp_1,
+  makeAbs: makeAbs_1,
+  finish: finish_1,
+  mark: mark_1,
+  isIgnored: isIgnored_1,
+  childrenIgnored: childrenIgnored_1,
 };
 
 var sync = globSync;
@@ -1908,54 +1896,53 @@ var ownProp$1 = common.ownProp;
 var childrenIgnored$1 = common.childrenIgnored;
 var isIgnored$1 = common.isIgnored;
 
-function globSync (pattern, options) {
-  if (typeof options === 'function' || arguments.length === 3)
-    throw new TypeError('callback provided to sync glob\n'+
-                        'See: https://github.com/isaacs/node-glob/issues/167')
+function globSync(pattern, options) {
+  if (typeof options === "function" || arguments.length === 3)
+    throw new TypeError(
+      "callback provided to sync glob\n" +
+        "See: https://github.com/isaacs/node-glob/issues/167"
+    );
 
-  return new GlobSync(pattern, options).found
+  return new GlobSync(pattern, options).found;
 }
 
-function GlobSync (pattern, options) {
-  if (!pattern)
-    throw new Error('must provide pattern')
+function GlobSync(pattern, options) {
+  if (!pattern) throw new Error("must provide pattern");
 
-  if (typeof options === 'function' || arguments.length === 3)
-    throw new TypeError('callback provided to sync glob\n'+
-                        'See: https://github.com/isaacs/node-glob/issues/167')
+  if (typeof options === "function" || arguments.length === 3)
+    throw new TypeError(
+      "callback provided to sync glob\n" +
+        "See: https://github.com/isaacs/node-glob/issues/167"
+    );
 
-  if (!(this instanceof GlobSync))
-    return new GlobSync(pattern, options)
+  if (!(this instanceof GlobSync)) return new GlobSync(pattern, options);
 
   setopts$1(this, pattern, options);
 
-  if (this.noprocess)
-    return this
+  if (this.noprocess) return this;
 
   var n = this.minimatch.set.length;
   this.matches = new Array(n);
-  for (var i = 0; i < n; i ++) {
+  for (var i = 0; i < n; i++) {
     this._process(this.minimatch.set[i], i, false);
   }
   this._finish();
 }
 
 GlobSync.prototype._finish = function () {
-  assert__default['default'](this instanceof GlobSync);
+  assert__default["default"](this instanceof GlobSync);
   if (this.realpath) {
     var self = this;
     this.matches.forEach(function (matchset, index) {
-      var set = self.matches[index] = Object.create(null);
+      var set = (self.matches[index] = Object.create(null));
       for (var p in matchset) {
         try {
           p = self._makeAbs(p);
           var real = fs_realpath.realpathSync(p, self.realpathCache);
           set[real] = true;
         } catch (er) {
-          if (er.syscall === 'stat')
-            set[self._makeAbs(p)] = true;
-          else
-            throw er
+          if (er.syscall === "stat") set[self._makeAbs(p)] = true;
+          else throw er;
         }
       }
     });
@@ -1963,14 +1950,13 @@ GlobSync.prototype._finish = function () {
   common.finish(this);
 };
 
-
 GlobSync.prototype._process = function (pattern, index, inGlobStar) {
-  assert__default['default'](this instanceof GlobSync);
+  assert__default["default"](this instanceof GlobSync);
 
   // Get the first [n] parts of pattern that are all strings.
   var n = 0;
-  while (typeof pattern[n] === 'string') {
-    n ++;
+  while (typeof pattern[n] === "string") {
+    n++;
   }
   // now n is the index of the first one that is *not* a string.
 
@@ -1979,83 +1965,81 @@ GlobSync.prototype._process = function (pattern, index, inGlobStar) {
   switch (n) {
     // if not, then this is rather simple
     case pattern.length:
-      this._processSimple(pattern.join('/'), index);
-      return
+      this._processSimple(pattern.join("/"), index);
+      return;
 
     case 0:
       // pattern *starts* with some non-trivial item.
       // going to readdir(cwd), but not include the prefix in matches.
       prefix = null;
-      break
+      break;
 
     default:
       // pattern has some string bits in the front.
       // whatever it starts with, whether that's 'absolute' like /foo/bar,
       // or 'relative' like '../baz'
-      prefix = pattern.slice(0, n).join('/');
-      break
+      prefix = pattern.slice(0, n).join("/");
+      break;
   }
 
   var remain = pattern.slice(n);
 
   // get the list of entries.
   var read;
-  if (prefix === null)
-    read = '.';
-  else if (pathIsAbsolute(prefix) || pathIsAbsolute(pattern.join('/'))) {
-    if (!prefix || !pathIsAbsolute(prefix))
-      prefix = '/' + prefix;
+  if (prefix === null) read = ".";
+  else if (pathIsAbsolute(prefix) || pathIsAbsolute(pattern.join("/"))) {
+    if (!prefix || !pathIsAbsolute(prefix)) prefix = "/" + prefix;
     read = prefix;
-  } else
-    read = prefix;
+  } else read = prefix;
 
   var abs = this._makeAbs(read);
 
   //if ignored, skip processing
-  if (childrenIgnored$1(this, read))
-    return
+  if (childrenIgnored$1(this, read)) return;
 
   var isGlobStar = remain[0] === minimatch_1.GLOBSTAR;
   if (isGlobStar)
     this._processGlobStar(prefix, read, abs, remain, index, inGlobStar);
-  else
-    this._processReaddir(prefix, read, abs, remain, index, inGlobStar);
+  else this._processReaddir(prefix, read, abs, remain, index, inGlobStar);
 };
 
-
-GlobSync.prototype._processReaddir = function (prefix, read, abs, remain, index, inGlobStar) {
+GlobSync.prototype._processReaddir = function (
+  prefix,
+  read,
+  abs,
+  remain,
+  index,
+  inGlobStar
+) {
   var entries = this._readdir(abs, inGlobStar);
 
   // if the abs isn't a dir, then nothing can match!
-  if (!entries)
-    return
+  if (!entries) return;
 
   // It will only match dot entries if it starts with a dot, or if
   // dot is set.  Stuff like @(.foo|.bar) isn't allowed.
   var pn = remain[0];
   var negate = !!this.minimatch.negate;
   var rawGlob = pn._glob;
-  var dotOk = this.dot || rawGlob.charAt(0) === '.';
+  var dotOk = this.dot || rawGlob.charAt(0) === ".";
 
   var matchedEntries = [];
   for (var i = 0; i < entries.length; i++) {
     var e = entries[i];
-    if (e.charAt(0) !== '.' || dotOk) {
+    if (e.charAt(0) !== "." || dotOk) {
       var m;
       if (negate && !prefix) {
         m = !e.match(pn);
       } else {
         m = e.match(pn);
       }
-      if (m)
-        matchedEntries.push(e);
+      if (m) matchedEntries.push(e);
     }
   }
 
   var len = matchedEntries.length;
   // If there are no matched entries, then nothing matches.
-  if (len === 0)
-    return
+  if (len === 0) return;
 
   // if this is the last remaining pattern bit, then no need for
   // an additional stat *unless* the user has specified mark or
@@ -2063,85 +2047,72 @@ GlobSync.prototype._processReaddir = function (prefix, read, abs, remain, index,
   // them.
 
   if (remain.length === 1 && !this.mark && !this.stat) {
-    if (!this.matches[index])
-      this.matches[index] = Object.create(null);
+    if (!this.matches[index]) this.matches[index] = Object.create(null);
 
-    for (var i = 0; i < len; i ++) {
+    for (var i = 0; i < len; i++) {
       var e = matchedEntries[i];
       if (prefix) {
-        if (prefix.slice(-1) !== '/')
-          e = prefix + '/' + e;
-        else
-          e = prefix + e;
+        if (prefix.slice(-1) !== "/") e = prefix + "/" + e;
+        else e = prefix + e;
       }
 
-      if (e.charAt(0) === '/' && !this.nomount) {
-        e = path__default['default'].join(this.root, e);
+      if (e.charAt(0) === "/" && !this.nomount) {
+        e = path__default["default"].join(this.root, e);
       }
       this._emitMatch(index, e);
     }
     // This was the last one, and no stats were needed
-    return
+    return;
   }
 
   // now test all matched entries as stand-ins for that part
   // of the pattern.
   remain.shift();
-  for (var i = 0; i < len; i ++) {
+  for (var i = 0; i < len; i++) {
     var e = matchedEntries[i];
     var newPattern;
-    if (prefix)
-      newPattern = [prefix, e];
-    else
-      newPattern = [e];
+    if (prefix) newPattern = [prefix, e];
+    else newPattern = [e];
     this._process(newPattern.concat(remain), index, inGlobStar);
   }
 };
 
-
 GlobSync.prototype._emitMatch = function (index, e) {
-  if (isIgnored$1(this, e))
-    return
+  if (isIgnored$1(this, e)) return;
 
   var abs = this._makeAbs(e);
 
-  if (this.mark)
-    e = this._mark(e);
+  if (this.mark) e = this._mark(e);
 
   if (this.absolute) {
     e = abs;
   }
 
-  if (this.matches[index][e])
-    return
+  if (this.matches[index][e]) return;
 
   if (this.nodir) {
     var c = this.cache[abs];
-    if (c === 'DIR' || Array.isArray(c))
-      return
+    if (c === "DIR" || Array.isArray(c)) return;
   }
 
   this.matches[index][e] = true;
 
-  if (this.stat)
-    this._stat(e);
+  if (this.stat) this._stat(e);
 };
-
 
 GlobSync.prototype._readdirInGlobStar = function (abs) {
   // follow all symlinked directories forever
   // just proceed as if this is a non-globstar situation
-  if (this.follow)
-    return this._readdir(abs, false)
+  if (this.follow) return this._readdir(abs, false);
 
   var entries;
   var lstat;
   try {
-    lstat = fs__default['default'].lstatSync(abs);
+    lstat = fs__default["default"].lstatSync(abs);
   } catch (er) {
-    if (er.code === 'ENOENT') {
+    if (er.code === "ENOENT") {
       // lstat failed, doesn't exist
-      return null
+      return null;
     }
   }
 
@@ -2150,33 +2121,28 @@ GlobSync.prototype._readdirInGlobStar = function (abs) {
 
   // If it's not a symlink or a dir, then it's definitely a regular file.
   // don't bother doing a readdir in that case.
-  if (!isSym && lstat && !lstat.isDirectory())
-    this.cache[abs] = 'FILE';
-  else
-    entries = this._readdir(abs, false);
+  if (!isSym && lstat && !lstat.isDirectory()) this.cache[abs] = "FILE";
+  else entries = this._readdir(abs, false);
 
-  return entries
+  return entries;
 };
 
 GlobSync.prototype._readdir = function (abs, inGlobStar) {
-
   if (inGlobStar && !ownProp$1(this.symlinks, abs))
-    return this._readdirInGlobStar(abs)
+    return this._readdirInGlobStar(abs);
 
   if (ownProp$1(this.cache, abs)) {
     var c = this.cache[abs];
-    if (!c || c === 'FILE')
-      return null
+    if (!c || c === "FILE") return null;
 
-    if (Array.isArray(c))
-      return c
+    if (Array.isArray(c)) return c;
   }
 
   try {
-    return this._readdirEntries(abs, fs__default['default'].readdirSync(abs))
+    return this._readdirEntries(abs, fs__default["default"].readdirSync(abs));
   } catch (er) {
     this._readdirError(abs, er);
-    return null
+    return null;
   }
 };
 
@@ -2185,12 +2151,10 @@ GlobSync.prototype._readdirEntries = function (abs, entries) {
   // assume that everything in there exists, so we can avoid
   // having to stat it a second time.
   if (!this.mark && !this.stat) {
-    for (var i = 0; i < entries.length; i ++) {
+    for (var i = 0; i < entries.length; i++) {
       var e = entries[i];
-      if (abs === '/')
-        e = abs + e;
-      else
-        e = abs + '/' + e;
+      if (abs === "/") e = abs + e;
+      else e = abs + "/" + e;
       this.cache[e] = true;
     }
   }
@@ -2198,54 +2162,58 @@ GlobSync.prototype._readdirEntries = function (abs, entries) {
   this.cache[abs] = entries;
 
   // mark and cache dir-ness
-  return entries
+  return entries;
 };
 
 GlobSync.prototype._readdirError = function (f, er) {
   // handle errors, and cache the information
   switch (er.code) {
-    case 'ENOTSUP': // https://github.com/isaacs/node-glob/issues/205
-    case 'ENOTDIR': // totally normal. means it *does* exist.
+    case "ENOTSUP": // https://github.com/isaacs/node-glob/issues/205
+    case "ENOTDIR": // totally normal. means it *does* exist.
       var abs = this._makeAbs(f);
-      this.cache[abs] = 'FILE';
+      this.cache[abs] = "FILE";
       if (abs === this.cwdAbs) {
-        var error = new Error(er.code + ' invalid cwd ' + this.cwd);
+        var error = new Error(er.code + " invalid cwd " + this.cwd);
         error.path = this.cwd;
         error.code = er.code;
-        throw error
+        throw error;
       }
-      break
+      break;
 
-    case 'ENOENT': // not terribly unusual
-    case 'ELOOP':
-    case 'ENAMETOOLONG':
-    case 'UNKNOWN':
+    case "ENOENT": // not terribly unusual
+    case "ELOOP":
+    case "ENAMETOOLONG":
+    case "UNKNOWN":
       this.cache[this._makeAbs(f)] = false;
-      break
+      break;
 
-    default: // some unusual error.  Treat as failure.
+    default:
+      // some unusual error.  Treat as failure.
       this.cache[this._makeAbs(f)] = false;
-      if (this.strict)
-        throw er
-      if (!this.silent)
-        console.error('glob error', er);
-      break
+      if (this.strict) throw er;
+      if (!this.silent) console.error("glob error", er);
+      break;
   }
 };
 
-GlobSync.prototype._processGlobStar = function (prefix, read, abs, remain, index, inGlobStar) {
-
+GlobSync.prototype._processGlobStar = function (
+  prefix,
+  read,
+  abs,
+  remain,
+  index,
+  inGlobStar
+) {
   var entries = this._readdir(abs, inGlobStar);
 
   // no entries means not a dir, so it can never have matches
   // foo.txt/** doesn't match foo.txt
-  if (!entries)
-    return
+  if (!entries) return;
 
   // test without the globstar, and with every child both below
   // and replacing the globstar.
   var remainWithoutGlobStar = remain.slice(1);
-  var gspref = prefix ? [ prefix ] : [];
+  var gspref = prefix ? [prefix] : [];
   var noGlobStar = gspref.concat(remainWithoutGlobStar);
 
   // the noGlobStar pattern exits the inGlobStar state
@@ -2255,13 +2223,11 @@ GlobSync.prototype._processGlobStar = function (prefix, read, abs, remain, index
   var isSym = this.symlinks[abs];
 
   // If it's a symlink, and we're in a globstar, then stop
-  if (isSym && inGlobStar)
-    return
+  if (isSym && inGlobStar) return;
 
   for (var i = 0; i < len; i++) {
     var e = entries[i];
-    if (e.charAt(0) === '.' && !this.dot)
-      continue
+    if (e.charAt(0) === "." && !this.dot) continue;
 
     // these two cases enter the inGlobStar state
     var instead = gspref.concat(entries[i], remainWithoutGlobStar);
@@ -2277,26 +2243,22 @@ GlobSync.prototype._processSimple = function (prefix, index) {
   // before doing stat?  kinda weird?
   var exists = this._stat(prefix);
 
-  if (!this.matches[index])
-    this.matches[index] = Object.create(null);
+  if (!this.matches[index]) this.matches[index] = Object.create(null);
 
   // If it doesn't exist, then just mark the lack of results
-  if (!exists)
-    return
+  if (!exists) return;
 
   if (prefix && pathIsAbsolute(prefix) && !this.nomount) {
     var trail = /[\/\\]$/.test(prefix);
-    if (prefix.charAt(0) === '/') {
-      prefix = path__default['default'].join(this.root, prefix);
+    if (prefix.charAt(0) === "/") {
+      prefix = path__default["default"].join(this.root, prefix);
     } else {
-      prefix = path__default['default'].resolve(this.root, prefix);
-      if (trail)
-        prefix += '/';
+      prefix = path__default["default"].resolve(this.root, prefix);
+      if (trail) prefix += "/";
     }
   }
 
-  if (process.platform === 'win32')
-    prefix = prefix.replace(/\\/g, '/');
+  if (process.platform === "win32") prefix = prefix.replace(/\\/g, "/");
 
   // Mark this as a match
   this._emitMatch(index, prefix);
@@ -2305,23 +2267,19 @@ GlobSync.prototype._processSimple = function (prefix, index) {
 // Returns either 'DIR', 'FILE', or false
 GlobSync.prototype._stat = function (f) {
   var abs = this._makeAbs(f);
-  var needDir = f.slice(-1) === '/';
+  var needDir = f.slice(-1) === "/";
 
-  if (f.length > this.maxLength)
-    return false
+  if (f.length > this.maxLength) return false;
 
   if (!this.stat && ownProp$1(this.cache, abs)) {
     var c = this.cache[abs];
 
-    if (Array.isArray(c))
-      c = 'DIR';
+    if (Array.isArray(c)) c = "DIR";
 
     // It exists, but maybe not how we need it
-    if (!needDir || c === 'DIR')
-      return c
+    if (!needDir || c === "DIR") return c;
 
-    if (needDir && c === 'FILE')
-      return false
+    if (needDir && c === "FILE") return false;
 
     // otherwise we have to stat, because maybe c=true
     // if we know it exists, but not what it is.
@@ -2330,17 +2288,17 @@ GlobSync.prototype._stat = function (f) {
   if (!stat) {
     var lstat;
     try {
-      lstat = fs__default['default'].lstatSync(abs);
+      lstat = fs__default["default"].lstatSync(abs);
     } catch (er) {
-      if (er && (er.code === 'ENOENT' || er.code === 'ENOTDIR')) {
+      if (er && (er.code === "ENOENT" || er.code === "ENOTDIR")) {
         this.statCache[abs] = false;
-        return false
+        return false;
       }
     }
 
     if (lstat && lstat.isSymbolicLink()) {
       try {
-        stat = fs__default['default'].statSync(abs);
+        stat = fs__default["default"].statSync(abs);
       } catch (er) {
         stat = lstat;
       }
@@ -2352,23 +2310,21 @@ GlobSync.prototype._stat = function (f) {
   this.statCache[abs] = stat;
 
   var c = true;
-  if (stat)
-    c = stat.isDirectory() ? 'DIR' : 'FILE';
+  if (stat) c = stat.isDirectory() ? "DIR" : "FILE";
 
   this.cache[abs] = this.cache[abs] || c;
 
-  if (needDir && c === 'FILE')
-    return false
+  if (needDir && c === "FILE") return false;
 
-  return c
+  return c;
 };
 
 GlobSync.prototype._mark = function (p) {
-  return common.mark(this, p)
+  return common.mark(this, p);
 };
 
 GlobSync.prototype._makeAbs = function (f) {
-  return common.makeAbs(this, f)
+  return common.makeAbs(this, f);
 };
 
 // Returns a wrapper function that returns a wrapped callback
@@ -2377,17 +2333,16 @@ GlobSync.prototype._makeAbs = function (f) {
 // This makes sure that own properties are retained, so that
 // decorations and such are not lost along the way.
 var wrappy_1 = wrappy;
-function wrappy (fn, cb) {
-  if (fn && cb) return wrappy(fn)(cb)
+function wrappy(fn, cb) {
+  if (fn && cb) return wrappy(fn)(cb);
 
-  if (typeof fn !== 'function')
-    throw new TypeError('need wrapper function')
+  if (typeof fn !== "function") throw new TypeError("need wrapper function");
 
   Object.keys(fn).forEach(function (k) {
     wrapper[k] = fn[k];
   });
 
-  return wrapper
+  return wrapper;
 
   function wrapper() {
     var args = new Array(arguments.length);
@@ -2395,13 +2350,13 @@ function wrappy (fn, cb) {
       args[i] = arguments[i];
     }
     var ret = fn.apply(this, args);
-    var cb = args[args.length-1];
-    if (typeof ret === 'function' && ret !== cb) {
+    var cb = args[args.length - 1];
+    if (typeof ret === "function" && ret !== cb) {
       Object.keys(cb).forEach(function (k) {
         ret[k] = cb[k];
       });
     }
-    return ret
+    return ret;
   }
 }
 
@@ -2409,62 +2364,60 @@ var once_1 = wrappy_1(once);
 var strict = wrappy_1(onceStrict);
 
 once.proto = once(function () {
-  Object.defineProperty(Function.prototype, 'once', {
+  Object.defineProperty(Function.prototype, "once", {
     value: function () {
-      return once(this)
+      return once(this);
     },
-    configurable: true
+    configurable: true,
   });
 
-  Object.defineProperty(Function.prototype, 'onceStrict', {
+  Object.defineProperty(Function.prototype, "onceStrict", {
     value: function () {
-      return onceStrict(this)
+      return onceStrict(this);
     },
-    configurable: true
+    configurable: true,
   });
 });
 
-function once (fn) {
+function once(fn) {
   var f = function () {
-    if (f.called) return f.value
+    if (f.called) return f.value;
     f.called = true;
-    return f.value = fn.apply(this, arguments)
+    return (f.value = fn.apply(this, arguments));
   };
   f.called = false;
-  return f
+  return f;
 }
 
-function onceStrict (fn) {
+function onceStrict(fn) {
   var f = function () {
-    if (f.called)
-      throw new Error(f.onceError)
+    if (f.called) throw new Error(f.onceError);
     f.called = true;
-    return f.value = fn.apply(this, arguments)
+    return (f.value = fn.apply(this, arguments));
   };
-  var name = fn.name || 'Function wrapped with `once`';
+  var name = fn.name || "Function wrapped with `once`";
   f.onceError = name + " shouldn't be called more than once";
   f.called = false;
-  return f
+  return f;
 }
 once_1.strict = strict;
 
 var reqs = Object.create(null);
 
-
 var inflight_1 = wrappy_1(inflight);
 
-function inflight (key, cb) {
+function inflight(key, cb) {
   if (reqs[key]) {
     reqs[key].push(cb);
-    return null
+    return null;
   } else {
     reqs[key] = [cb];
-    return makeres(key)
+    return makeres(key);
   }
 }
 
-function makeres (key) {
-  return once_1(function RES () {
+function makeres(key) {
+  return once_1(function RES() {
     var cbs = reqs[key];
     var len = cbs.length;
     var args = slice(arguments);
@@ -2491,15 +2444,15 @@ function makeres (key) {
         delete reqs[key];
       }
     }
-  })
+  });
 }
 
-function slice (args) {
+function slice(args) {
   var length = args.length;
   var array = [];
 
   for (var i = 0; i < length; i++) array[i] = args[i];
-  return array
+  return array;
 }
 
 // Approach:
@@ -2544,38 +2497,34 @@ function slice (args) {
 
 var glob_1 = glob;
 
-var EE = events__default['default'].EventEmitter;
+var EE = events__default["default"].EventEmitter;
 var setopts$2 = common.setopts;
 var ownProp$2 = common.ownProp;
-
 
 var childrenIgnored$2 = common.childrenIgnored;
 var isIgnored$2 = common.isIgnored;
 
-
-
-function glob (pattern, options, cb) {
-  if (typeof options === 'function') cb = options, options = {};
+function glob(pattern, options, cb) {
+  if (typeof options === "function") (cb = options), (options = {});
   if (!options) options = {};
 
   if (options.sync) {
-    if (cb)
-      throw new TypeError('callback provided to sync glob')
-    return sync(pattern, options)
+    if (cb) throw new TypeError("callback provided to sync glob");
+    return sync(pattern, options);
   }
 
-  return new Glob(pattern, options, cb)
+  return new Glob(pattern, options, cb);
 }
 
 glob.sync = sync;
-var GlobSync$1 = glob.GlobSync = sync.GlobSync;
+var GlobSync$1 = (glob.GlobSync = sync.GlobSync);
 
 // old api surface
 glob.glob = glob;
 
-function extend (origin, add) {
-  if (add === null || typeof add !== 'object') {
-    return origin
+function extend(origin, add) {
+  if (add === null || typeof add !== "object") {
+    return origin;
   }
 
   var keys = Object.keys(add);
@@ -2583,7 +2532,7 @@ function extend (origin, add) {
   while (i--) {
     origin[keys[i]] = add[keys[i]];
   }
-  return origin
+  return origin;
 }
 
 glob.hasMagic = function (pattern, options_) {
@@ -2593,36 +2542,31 @@ glob.hasMagic = function (pattern, options_) {
   var g = new Glob(pattern, options);
   var set = g.minimatch.set;
 
-  if (!pattern)
-    return false
+  if (!pattern) return false;
 
-  if (set.length > 1)
-    return true
+  if (set.length > 1) return true;
 
   for (var j = 0; j < set[0].length; j++) {
-    if (typeof set[0][j] !== 'string')
-      return true
+    if (typeof set[0][j] !== "string") return true;
   }
 
-  return false
+  return false;
 };
 
 glob.Glob = Glob;
 inherits(Glob, EE);
-function Glob (pattern, options, cb) {
-  if (typeof options === 'function') {
+function Glob(pattern, options, cb) {
+  if (typeof options === "function") {
     cb = options;
     options = null;
   }
 
   if (options && options.sync) {
-    if (cb)
-      throw new TypeError('callback provided to sync glob')
-    return new GlobSync$1(pattern, options)
+    if (cb) throw new TypeError("callback provided to sync glob");
+    return new GlobSync$1(pattern, options);
   }
 
-  if (!(this instanceof Glob))
-    return new Glob(pattern, options, cb)
+  if (!(this instanceof Glob)) return new Glob(pattern, options, cb);
 
   setopts$2(this, pattern, options);
   this._didRealPath = false;
@@ -2636,10 +2580,10 @@ function Glob (pattern, options, cb) {
   // Keep them as a list so we can fill in when nonull is set.
   this.matches = new Array(n);
 
-  if (typeof cb === 'function') {
+  if (typeof cb === "function") {
     cb = once_1(cb);
-    this.on('error', cb);
-    this.on('end', function (matches) {
+    this.on("error", cb);
+    this.on("end", function (matches) {
       cb(null, matches);
     });
   }
@@ -2651,19 +2595,17 @@ function Glob (pattern, options, cb) {
   this._processQueue = [];
   this.paused = false;
 
-  if (this.noprocess)
-    return this
+  if (this.noprocess) return this;
 
-  if (n === 0)
-    return done()
+  if (n === 0) return done();
 
   var sync = true;
-  for (var i = 0; i < n; i ++) {
+  for (var i = 0; i < n; i++) {
     this._process(this.minimatch.set[i], i, false, done);
   }
   sync = false;
 
-  function done () {
+  function done() {
     --self._processing;
     if (self._processing <= 0) {
       if (sync) {
@@ -2678,62 +2620,51 @@ function Glob (pattern, options, cb) {
 }
 
 Glob.prototype._finish = function () {
-  assert__default['default'](this instanceof Glob);
-  if (this.aborted)
-    return
+  assert__default["default"](this instanceof Glob);
+  if (this.aborted) return;
 
-  if (this.realpath && !this._didRealpath)
-    return this._realpath()
+  if (this.realpath && !this._didRealpath) return this._realpath();
 
   common.finish(this);
-  this.emit('end', this.found);
+  this.emit("end", this.found);
 };
 
 Glob.prototype._realpath = function () {
-  if (this._didRealpath)
-    return
+  if (this._didRealpath) return;
 
   this._didRealpath = true;
 
   var n = this.matches.length;
-  if (n === 0)
-    return this._finish()
+  if (n === 0) return this._finish();
 
   var self = this;
-  for (var i = 0; i < this.matches.length; i++)
-    this._realpathSet(i, next);
+  for (var i = 0; i < this.matches.length; i++) this._realpathSet(i, next);
 
-  function next () {
-    if (--n === 0)
-      self._finish();
+  function next() {
+    if (--n === 0) self._finish();
   }
 };
 
 Glob.prototype._realpathSet = function (index, cb) {
   var matchset = this.matches[index];
-  if (!matchset)
-    return cb()
+  if (!matchset) return cb();
 
   var found = Object.keys(matchset);
   var self = this;
   var n = found.length;
 
-  if (n === 0)
-    return cb()
+  if (n === 0) return cb();
 
-  var set = this.matches[index] = Object.create(null);
+  var set = (this.matches[index] = Object.create(null));
   found.forEach(function (p, i) {
     // If there's a problem with the stat, then it means that
     // one or more of the links in the realpath couldn't be
     // resolved.  just return the abs value in that case.
     p = self._makeAbs(p);
     fs_realpath.realpath(p, self.realpathCache, function (er, real) {
-      if (!er)
-        set[real] = true;
-      else if (er.syscall === 'stat')
-        set[p] = true;
-      else
-        self.emit('error', er); // srsly wtf right here
+      if (!er) set[real] = true;
+      else if (er.syscall === "stat") set[p] = true;
+      else self.emit("error", er); // srsly wtf right here
 
       if (--n === 0) {
         self.matches[index] = set;
@@ -2744,33 +2675,33 @@ Glob.prototype._realpathSet = function (index, cb) {
 };
 
 Glob.prototype._mark = function (p) {
-  return common.mark(this, p)
+  return common.mark(this, p);
 };
 
 Glob.prototype._makeAbs = function (f) {
-  return common.makeAbs(this, f)
+  return common.makeAbs(this, f);
 };
 
 Glob.prototype.abort = function () {
   this.aborted = true;
-  this.emit('abort');
+  this.emit("abort");
 };
 
 Glob.prototype.pause = function () {
   if (!this.paused) {
     this.paused = true;
-    this.emit('pause');
+    this.emit("pause");
   }
 };
 
 Glob.prototype.resume = function () {
   if (this.paused) {
-    this.emit('resume');
+    this.emit("resume");
     this.paused = false;
     if (this._emitQueue.length) {
       var eq = this._emitQueue.slice(0);
       this._emitQueue.length = 0;
-      for (var i = 0; i < eq.length; i ++) {
+      for (var i = 0; i < eq.length; i++) {
         var e = eq[i];
         this._emitMatch(e[0], e[1]);
       }
@@ -2778,7 +2709,7 @@ Glob.prototype.resume = function () {
     if (this._processQueue.length) {
       var pq = this._processQueue.slice(0);
       this._processQueue.length = 0;
-      for (var i = 0; i < pq.length; i ++) {
+      for (var i = 0; i < pq.length; i++) {
         var p = pq[i];
         this._processing--;
         this._process(p[0], p[1], p[2], p[3]);
@@ -2788,24 +2719,23 @@ Glob.prototype.resume = function () {
 };
 
 Glob.prototype._process = function (pattern, index, inGlobStar, cb) {
-  assert__default['default'](this instanceof Glob);
-  assert__default['default'](typeof cb === 'function');
+  assert__default["default"](this instanceof Glob);
+  assert__default["default"](typeof cb === "function");
 
-  if (this.aborted)
-    return
+  if (this.aborted) return;
 
   this._processing++;
   if (this.paused) {
     this._processQueue.push([pattern, index, inGlobStar, cb]);
-    return
+    return;
   }
 
   //console.error('PROCESS %d', this._processing, pattern)
 
   // Get the first [n] parts of pattern that are all strings.
   var n = 0;
-  while (typeof pattern[n] === 'string') {
-    n ++;
+  while (typeof pattern[n] === "string") {
+    n++;
   }
   // now n is the index of the first one that is *not* a string.
 
@@ -2814,81 +2744,99 @@ Glob.prototype._process = function (pattern, index, inGlobStar, cb) {
   switch (n) {
     // if not, then this is rather simple
     case pattern.length:
-      this._processSimple(pattern.join('/'), index, cb);
-      return
+      this._processSimple(pattern.join("/"), index, cb);
+      return;
 
     case 0:
       // pattern *starts* with some non-trivial item.
       // going to readdir(cwd), but not include the prefix in matches.
       prefix = null;
-      break
+      break;
 
     default:
       // pattern has some string bits in the front.
       // whatever it starts with, whether that's 'absolute' like /foo/bar,
       // or 'relative' like '../baz'
-      prefix = pattern.slice(0, n).join('/');
-      break
+      prefix = pattern.slice(0, n).join("/");
+      break;
   }
 
   var remain = pattern.slice(n);
 
   // get the list of entries.
   var read;
-  if (prefix === null)
-    read = '.';
-  else if (pathIsAbsolute(prefix) || pathIsAbsolute(pattern.join('/'))) {
-    if (!prefix || !pathIsAbsolute(prefix))
-      prefix = '/' + prefix;
+  if (prefix === null) read = ".";
+  else if (pathIsAbsolute(prefix) || pathIsAbsolute(pattern.join("/"))) {
+    if (!prefix || !pathIsAbsolute(prefix)) prefix = "/" + prefix;
     read = prefix;
-  } else
-    read = prefix;
+  } else read = prefix;
 
   var abs = this._makeAbs(read);
 
   //if ignored, skip _processing
-  if (childrenIgnored$2(this, read))
-    return cb()
+  if (childrenIgnored$2(this, read)) return cb();
 
   var isGlobStar = remain[0] === minimatch_1.GLOBSTAR;
   if (isGlobStar)
     this._processGlobStar(prefix, read, abs, remain, index, inGlobStar, cb);
-  else
-    this._processReaddir(prefix, read, abs, remain, index, inGlobStar, cb);
+  else this._processReaddir(prefix, read, abs, remain, index, inGlobStar, cb);
 };
 
-Glob.prototype._processReaddir = function (prefix, read, abs, remain, index, inGlobStar, cb) {
+Glob.prototype._processReaddir = function (
+  prefix,
+  read,
+  abs,
+  remain,
+  index,
+  inGlobStar,
+  cb
+) {
   var self = this;
   this._readdir(abs, inGlobStar, function (er, entries) {
-    return self._processReaddir2(prefix, read, abs, remain, index, inGlobStar, entries, cb)
+    return self._processReaddir2(
+      prefix,
+      read,
+      abs,
+      remain,
+      index,
+      inGlobStar,
+      entries,
+      cb
+    );
   });
 };
 
-Glob.prototype._processReaddir2 = function (prefix, read, abs, remain, index, inGlobStar, entries, cb) {
-
+Glob.prototype._processReaddir2 = function (
+  prefix,
+  read,
+  abs,
+  remain,
+  index,
+  inGlobStar,
+  entries,
+  cb
+) {
   // if the abs isn't a dir, then nothing can match!
-  if (!entries)
-    return cb()
+  if (!entries) return cb();
 
   // It will only match dot entries if it starts with a dot, or if
   // dot is set.  Stuff like @(.foo|.bar) isn't allowed.
   var pn = remain[0];
   var negate = !!this.minimatch.negate;
   var rawGlob = pn._glob;
-  var dotOk = this.dot || rawGlob.charAt(0) === '.';
+  var dotOk = this.dot || rawGlob.charAt(0) === ".";
 
   var matchedEntries = [];
   for (var i = 0; i < entries.length; i++) {
     var e = entries[i];
-    if (e.charAt(0) !== '.' || dotOk) {
+    if (e.charAt(0) !== "." || dotOk) {
       var m;
       if (negate && !prefix) {
         m = !e.match(pn);
       } else {
         m = e.match(pn);
       }
-      if (m)
-        matchedEntries.push(e);
+      if (m) matchedEntries.push(e);
     }
   }
 
@@ -2896,8 +2844,7 @@ Glob.prototype._processReaddir2 = function (prefix, read, abs, remain, index, in
 
   var len = matchedEntries.length;
   // If there are no matched entries, then nothing matches.
-  if (len === 0)
-    return cb()
+  if (len === 0) return cb();
 
   // if this is the last remaining pattern bit, then no need for
   // an additional stat *unless* the user has specified mark or
@@ -2905,37 +2852,32 @@ Glob.prototype._processReaddir2 = function (prefix, read, abs, remain, index, in
   // them.
 
   if (remain.length === 1 && !this.mark && !this.stat) {
-    if (!this.matches[index])
-      this.matches[index] = Object.create(null);
+    if (!this.matches[index]) this.matches[index] = Object.create(null);
 
-    for (var i = 0; i < len; i ++) {
+    for (var i = 0; i < len; i++) {
       var e = matchedEntries[i];
       if (prefix) {
-        if (prefix !== '/')
-          e = prefix + '/' + e;
-        else
-          e = prefix + e;
+        if (prefix !== "/") e = prefix + "/" + e;
+        else e = prefix + e;
       }
 
-      if (e.charAt(0) === '/' && !this.nomount) {
-        e = path__default['default'].join(this.root, e);
+      if (e.charAt(0) === "/" && !this.nomount) {
+        e = path__default["default"].join(this.root, e);
       }
       this._emitMatch(index, e);
     }
     // This was the last one, and no stats were needed
-    return cb()
+    return cb();
   }
 
   // now test all matched entries as stand-ins for that part
   // of the pattern.
   remain.shift();
-  for (var i = 0; i < len; i ++) {
+  for (var i = 0; i < len; i++) {
     var e = matchedEntries[i];
     if (prefix) {
-      if (prefix !== '/')
-        e = prefix + '/' + e;
-      else
-        e = prefix + e;
+      if (prefix !== "/") e = prefix + "/" + e;
+      else e = prefix + e;
     }
     this._process([e].concat(remain), index, inGlobStar, cb);
   }
@@ -2943,62 +2885,51 @@ Glob.prototype._processReaddir2 = function (prefix, read, abs, remain, index, in
 };
 
 Glob.prototype._emitMatch = function (index, e) {
-  if (this.aborted)
-    return
+  if (this.aborted) return;
 
-  if (isIgnored$2(this, e))
-    return
+  if (isIgnored$2(this, e)) return;
 
   if (this.paused) {
     this._emitQueue.push([index, e]);
-    return
+    return;
   }
 
   var abs = pathIsAbsolute(e) ? e : this._makeAbs(e);
 
-  if (this.mark)
-    e = this._mark(e);
+  if (this.mark) e = this._mark(e);
 
-  if (this.absolute)
-    e = abs;
+  if (this.absolute) e = abs;
 
-  if (this.matches[index][e])
-    return
+  if (this.matches[index][e]) return;
 
   if (this.nodir) {
     var c = this.cache[abs];
-    if (c === 'DIR' || Array.isArray(c))
-      return
+    if (c === "DIR" || Array.isArray(c)) return;
   }
 
   this.matches[index][e] = true;
 
   var st = this.statCache[abs];
-  if (st)
-    this.emit('stat', e, st);
+  if (st) this.emit("stat", e, st);
 
-  this.emit('match', e);
+  this.emit("match", e);
 };
 
 Glob.prototype._readdirInGlobStar = function (abs, cb) {
-  if (this.aborted)
-    return
+  if (this.aborted) return;
 
   // follow all symlinked directories forever
   // just proceed as if this is a non-globstar situation
-  if (this.follow)
-    return this._readdir(abs, false, cb)
+  if (this.follow) return this._readdir(abs, false, cb);
 
-  var lstatkey = 'lstat\0' + abs;
+  var lstatkey = "lstat\0" + abs;
   var self = this;
   var lstatcb = inflight_1(lstatkey, lstatcb_);
 
-  if (lstatcb)
-    fs__default['default'].lstat(abs, lstatcb);
+  if (lstatcb) fs__default["default"].lstat(abs, lstatcb);
 
-  function lstatcb_ (er, lstat) {
-    if (er && er.code === 'ENOENT')
-      return cb()
+  function lstatcb_(er, lstat) {
+    if (er && er.code === "ENOENT") return cb();
 
     var isSym = lstat && lstat.isSymbolicLink();
     self.symlinks[abs] = isSym;
@@ -3006,129 +2937,142 @@ Glob.prototype._readdirInGlobStar = function (abs, cb) {
     // If it's not a symlink or a dir, then it's definitely a regular file.
     // don't bother doing a readdir in that case.
     if (!isSym && lstat && !lstat.isDirectory()) {
-      self.cache[abs] = 'FILE';
+      self.cache[abs] = "FILE";
       cb();
-    } else
-      self._readdir(abs, false, cb);
+    } else self._readdir(abs, false, cb);
   }
 };
 
 Glob.prototype._readdir = function (abs, inGlobStar, cb) {
-  if (this.aborted)
-    return
+  if (this.aborted) return;
 
-  cb = inflight_1('readdir\0'+abs+'\0'+inGlobStar, cb);
-  if (!cb)
-    return
+  cb = inflight_1("readdir\0" + abs + "\0" + inGlobStar, cb);
+  if (!cb) return;
 
   //console.error('RD %j %j', +inGlobStar, abs)
   if (inGlobStar && !ownProp$2(this.symlinks, abs))
-    return this._readdirInGlobStar(abs, cb)
+    return this._readdirInGlobStar(abs, cb);
 
   if (ownProp$2(this.cache, abs)) {
     var c = this.cache[abs];
-    if (!c || c === 'FILE')
-      return cb()
+    if (!c || c === "FILE") return cb();
 
-    if (Array.isArray(c))
-      return cb(null, c)
+    if (Array.isArray(c)) return cb(null, c);
   }
-  fs__default['default'].readdir(abs, readdirCb(this, abs, cb));
+  fs__default["default"].readdir(abs, readdirCb(this, abs, cb));
 };
 
-function readdirCb (self, abs, cb) {
+function readdirCb(self, abs, cb) {
   return function (er, entries) {
-    if (er)
-      self._readdirError(abs, er, cb);
-    else
-      self._readdirEntries(abs, entries, cb);
-  }
+    if (er) self._readdirError(abs, er, cb);
+    else self._readdirEntries(abs, entries, cb);
+  };
 }
 
 Glob.prototype._readdirEntries = function (abs, entries, cb) {
-  if (this.aborted)
-    return
+  if (this.aborted) return;
 
   // if we haven't asked to stat everything, then just
   // assume that everything in there exists, so we can avoid
   // having to stat it a second time.
   if (!this.mark && !this.stat) {
-    for (var i = 0; i < entries.length; i ++) {
+    for (var i = 0; i < entries.length; i++) {
       var e = entries[i];
-      if (abs === '/')
-        e = abs + e;
-      else
-        e = abs + '/' + e;
+      if (abs === "/") e = abs + e;
+      else e = abs + "/" + e;
       this.cache[e] = true;
     }
   }
 
   this.cache[abs] = entries;
-  return cb(null, entries)
+  return cb(null, entries);
 };
 
 Glob.prototype._readdirError = function (f, er, cb) {
-  if (this.aborted)
-    return
+  if (this.aborted) return;
 
   // handle errors, and cache the information
   switch (er.code) {
-    case 'ENOTSUP': // https://github.com/isaacs/node-glob/issues/205
-    case 'ENOTDIR': // totally normal. means it *does* exist.
+    case "ENOTSUP": // https://github.com/isaacs/node-glob/issues/205
+    case "ENOTDIR": // totally normal. means it *does* exist.
       var abs = this._makeAbs(f);
-      this.cache[abs] = 'FILE';
+      this.cache[abs] = "FILE";
       if (abs === this.cwdAbs) {
-        var error = new Error(er.code + ' invalid cwd ' + this.cwd);
+        var error = new Error(er.code + " invalid cwd " + this.cwd);
         error.path = this.cwd;
         error.code = er.code;
-        this.emit('error', error);
+        this.emit("error", error);
         this.abort();
       }
-      break
+      break;
 
-    case 'ENOENT': // not terribly unusual
-    case 'ELOOP':
-    case 'ENAMETOOLONG':
-    case 'UNKNOWN':
+    case "ENOENT": // not terribly unusual
+    case "ELOOP":
+    case "ENAMETOOLONG":
+    case "UNKNOWN":
       this.cache[this._makeAbs(f)] = false;
-      break
+      break;
 
-    default: // some unusual error.  Treat as failure.
+    default:
+      // some unusual error.  Treat as failure.
       this.cache[this._makeAbs(f)] = false;
       if (this.strict) {
-        this.emit('error', er);
+        this.emit("error", er);
         // If the error is handled, then we abort
         // if not, we threw out of here
         this.abort();
       }
-      if (!this.silent)
-        console.error('glob error', er);
-      break
+      if (!this.silent) console.error("glob error", er);
+      break;
   }
 
-  return cb()
+  return cb();
 };
 
-Glob.prototype._processGlobStar = function (prefix, read, abs, remain, index, inGlobStar, cb) {
+Glob.prototype._processGlobStar = function (
+  prefix,
+  read,
+  abs,
+  remain,
+  index,
+  inGlobStar,
+  cb
+) {
   var self = this;
   this._readdir(abs, inGlobStar, function (er, entries) {
-    self._processGlobStar2(prefix, read, abs, remain, index, inGlobStar, entries, cb);
+    self._processGlobStar2(
+      prefix,
+      read,
+      abs,
+      remain,
+      index,
+      inGlobStar,
+      entries,
+      cb
+    );
   });
 };
 
-
-Glob.prototype._processGlobStar2 = function (prefix, read, abs, remain, index, inGlobStar, entries, cb) {
+Glob.prototype._processGlobStar2 = function (
+  prefix,
+  read,
+  abs,
+  remain,
+  index,
+  inGlobStar,
+  entries,
+  cb
+) {
   //console.error('pgs2', prefix, remain[0], entries)
 
   // no entries means not a dir, so it can never have matches
   // foo.txt/** doesn't match foo.txt
-  if (!entries)
-    return cb()
+  if (!entries) return cb();
 
   // test without the globstar, and with every child both below
   // and replacing the globstar.
   var remainWithoutGlobStar = remain.slice(1);
-  var gspref = prefix ? [ prefix ] : [];
+  var gspref = prefix ? [prefix] : [];
   var noGlobStar = gspref.concat(remainWithoutGlobStar);
 
   // the noGlobStar pattern exits the inGlobStar state
@@ -3138,13 +3082,11 @@ Glob.prototype._processGlobStar2 = function (prefix, read, abs, remain, index, i
   var len = entries.length;
 
   // If it's a symlink, and we're in a globstar, then stop
-  if (isSym && inGlobStar)
-    return cb()
+  if (isSym && inGlobStar) return cb();
 
   for (var i = 0; i < len; i++) {
     var e = entries[i];
-    if (e.charAt(0) === '.' && !this.dot)
-      continue
+    if (e.charAt(0) === "." && !this.dot) continue;
 
     // these two cases enter the inGlobStar state
     var instead = gspref.concat(entries[i], remainWithoutGlobStar);
@@ -3166,29 +3108,24 @@ Glob.prototype._processSimple = function (prefix, index, cb) {
   });
 };
 Glob.prototype._processSimple2 = function (prefix, index, er, exists, cb) {
-
   //console.error('ps2', prefix, exists)
 
-  if (!this.matches[index])
-    this.matches[index] = Object.create(null);
+  if (!this.matches[index]) this.matches[index] = Object.create(null);
 
   // If it doesn't exist, then just mark the lack of results
-  if (!exists)
-    return cb()
+  if (!exists) return cb();
 
   if (prefix && pathIsAbsolute(prefix) && !this.nomount) {
     var trail = /[\/\\]$/.test(prefix);
-    if (prefix.charAt(0) === '/') {
-      prefix = path__default['default'].join(this.root, prefix);
+    if (prefix.charAt(0) === "/") {
+      prefix = path__default["default"].join(this.root, prefix);
     } else {
-      prefix = path__default['default'].resolve(this.root, prefix);
-      if (trail)
-        prefix += '/';
+      prefix = path__default["default"].resolve(this.root, prefix);
+      if (trail) prefix += "/";
     }
   }
 
-  if (process.platform === 'win32')
-    prefix = prefix.replace(/\\/g, '/');
+  if (process.platform === "win32") prefix = prefix.replace(/\\/g, "/");
 
   // Mark this as a match
   this._emitMatch(index, prefix);
@@ -3198,55 +3135,45 @@ Glob.prototype._processSimple2 = function (prefix, index, er, exists, cb) {
 // Returns either 'DIR', 'FILE', or false
 Glob.prototype._stat = function (f, cb) {
   var abs = this._makeAbs(f);
-  var needDir = f.slice(-1) === '/';
+  var needDir = f.slice(-1) === "/";
 
-  if (f.length > this.maxLength)
-    return cb()
+  if (f.length > this.maxLength) return cb();
 
   if (!this.stat && ownProp$2(this.cache, abs)) {
     var c = this.cache[abs];
 
-    if (Array.isArray(c))
-      c = 'DIR';
+    if (Array.isArray(c)) c = "DIR";
 
     // It exists, but maybe not how we need it
-    if (!needDir || c === 'DIR')
-      return cb(null, c)
+    if (!needDir || c === "DIR") return cb(null, c);
 
-    if (needDir && c === 'FILE')
-      return cb()
+    if (needDir && c === "FILE") return cb();
 
     // otherwise we have to stat, because maybe c=true
     // if we know it exists, but not what it is.
   }
   var stat = this.statCache[abs];
   if (stat !== undefined) {
-    if (stat === false)
-      return cb(null, stat)
+    if (stat === false) return cb(null, stat);
     else {
-      var type = stat.isDirectory() ? 'DIR' : 'FILE';
-      if (needDir && type === 'FILE')
-        return cb()
-      else
-        return cb(null, type, stat)
+      var type = stat.isDirectory() ? "DIR" : "FILE";
+      if (needDir && type === "FILE") return cb();
+      else return cb(null, type, stat);
     }
   }
 
   var self = this;
-  var statcb = inflight_1('stat\0' + abs, lstatcb_);
-  if (statcb)
-    fs__default['default'].lstat(abs, statcb);
+  var statcb = inflight_1("stat\0" + abs, lstatcb_);
+  if (statcb) fs__default["default"].lstat(abs, statcb);
 
-  function lstatcb_ (er, lstat) {
+  function lstatcb_(er, lstat) {
     if (lstat && lstat.isSymbolicLink()) {
       // If it's a symlink, then treat it as the target, unless
       // the target does not exist, then treat it as a file.
-      return fs__default['default'].stat(abs, function (er, stat) {
-        if (er)
-          self._stat2(f, abs, null, lstat, cb);
-        else
-          self._stat2(f, abs, er, stat, cb);
-      })
+      return fs__default["default"].stat(abs, function (er, stat) {
+        if (er) self._stat2(f, abs, null, lstat, cb);
+        else self._stat2(f, abs, er, stat, cb);
+      });
     } else {
       self._stat2(f, abs, er, lstat, cb);
     }
@@ -3254,26 +3181,24 @@ Glob.prototype._stat = function (f, cb) {
 };
 
 Glob.prototype._stat2 = function (f, abs, er, stat, cb) {
-  if (er && (er.code === 'ENOENT' || er.code === 'ENOTDIR')) {
+  if (er && (er.code === "ENOENT" || er.code === "ENOTDIR")) {
     this.statCache[abs] = false;
-    return cb()
+    return cb();
   }
 
-  var needDir = f.slice(-1) === '/';
+  var needDir = f.slice(-1) === "/";
   this.statCache[abs] = stat;
 
-  if (abs.slice(-1) === '/' && stat && !stat.isDirectory())
-    return cb(null, false, stat)
+  if (abs.slice(-1) === "/" && stat && !stat.isDirectory())
+    return cb(null, false, stat);
 
   var c = true;
-  if (stat)
-    c = stat.isDirectory() ? 'DIR' : 'FILE';
+  if (stat) c = stat.isDirectory() ? "DIR" : "FILE";
   this.cache[abs] = this.cache[abs] || c;
 
-  if (needDir && c === 'FILE')
-    return cb()
+  if (needDir && c === "FILE") return cb();
 
-  return cb(null, c, stat)
+  return cb(null, c, stat);
 };
 
 var glob$1 = glob_1;

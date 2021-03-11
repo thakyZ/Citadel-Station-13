@@ -73,6 +73,8 @@ if [ "$(uname)" = "Linux" ] || [ ! -f "$PythonExe" ]; then
 		exit 1
 	fi
 fi
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+"$PythonDir/bin/python" get-pip.py
 
 # Use pip to install our requirements
 if [ ! -f "$PythonDir/requirements.txt" ] || [ "$(b2sum < "$Sdk/requirements.txt")" != "$(b2sum < "$PythonDir/requirements.txt")" ]; then
