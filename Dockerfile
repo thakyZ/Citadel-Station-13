@@ -79,7 +79,7 @@ FROM byond
 WORKDIR /tgstation
 
 RUN apt-get install -y --no-install-recommends \
-        libssl1.0.0:i386 \
+        libssl1.1:i386 \
         zlib1g:i386
 
 COPY --from=build /deploy ./
