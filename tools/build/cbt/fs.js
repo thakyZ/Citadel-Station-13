@@ -4,8 +4,8 @@
  * @license MIT
  */
 
-const fs = require('fs');
-const glob = require('./glob');
+import { utimesSync, closeSync, openSync, statSync } from 'fs';
+import glob from './glob';
 
 class File {
   constructor(path) {
@@ -30,10 +30,10 @@ class File {
   touch() {
     const time = new Date();
     try {
-      fs.utimesSync(this.path, time, time);
+      utimesSync(this.path, time, time);
     }
     catch (err) {
-      fs.closeSync(fs.openSync(this.path, 'w'));
+      closeSync(openSync(this.path, 'w'));
     }
   }
 }
@@ -99,7 +99,7 @@ const compareFiles = (sources, targets) => {
  */
 const stat = path => {
   try {
-    return fs.statSync(path);
+    return statSync(path);
   }
   catch {
     return null;
@@ -118,7 +118,7 @@ const resolveGlob = globPath => {
   const safePaths = [];
   for (let path of unsafePaths) {
     try {
-      fs.statSync(path);
+      statSync(path);
       safePaths.push(path);
     }
     catch {}
@@ -126,7 +126,7 @@ const resolveGlob = globPath => {
   return safePaths;
 };
 
-module.exports = {
+export default {
   File,
   Glob,
   compareFiles,

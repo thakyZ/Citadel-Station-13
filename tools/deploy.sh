@@ -6,25 +6,25 @@
 
 #second arg is working directory if necessary
 if [[ $# -eq 2 ]] ; then
-  cd $2
+  cd "$2" || exit
 fi
 
 mkdir -p \
-    $1/_maps \
-    $1/icons/runtime \
-    $1/sound/runtime \
-    $1/strings
+    "$1"/_maps \
+    "$1"/icons/runtime \
+    "$1"/sound/runtime \
+    "$1"/strings
 
 if [ -d ".git" ]; then
-  mkdir -p $1/.git/logs
-  cp -r .git/logs/* $1/.git/logs/
+  mkdir -p "$1"/.git/logs
+  cp -r .git/logs/* "$1"/.git/logs/
 fi
 
-cp tgstation.dmb tgstation.rsc $1/
-cp -r _maps/* $1/_maps/
-cp -r icons/runtime/* $1/icons/runtime/
-cp -r sound/runtime/* $1/sound/runtime/
-cp -r strings/* $1/strings/
+cp tgstation.dmb tgstation.rsc "$1"/
+cp -r _maps/* "$1"/_maps/
+cp -r icons/runtime/* "$1"/icons/runtime/
+cp -r sound/runtime/* "$1"/sound/runtime/
+cp -r strings/* "$1"/strings/
 
 #remove .dm files from _maps
 
@@ -33,5 +33,5 @@ cp -r strings/* $1/strings/
 
 #dlls on windows
 if [ "$(uname -o)" = "Msys"  ]; then
-	cp ./*.dll $1/
+	cp ./*.dll "$1"/
 fi

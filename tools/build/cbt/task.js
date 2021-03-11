@@ -4,8 +4,8 @@
  * @license MIT
  */
 
-const { compareFiles, Glob, File } = require('./fs');
-const fs = require('fs');
+import { compareFiles, Glob, File } from './fs';
+import { stat, rm, copyFile, readFileSync, openSync, writeSync, close, rename } from 'fs';
 
 class Task {
   constructor(name) {
@@ -38,18 +38,18 @@ class Task {
 
   copy(path, dest) {
     this.scripts.push(async () => {
-    if (fs.stat(dest, (err) => {
+    if (stat(dest, (err) => {
       if (err) {
         return;
       }
     })) {
-      fs.rm(dest, { force: false, maxRetries: 1, recursive: false, retryDelay: 20 }, (err) => {
+      rm(dest, { force: false, maxRetries: 1, recursive: false, retryDelay: 20 }, (err) => {
         if (err) {
           return;
         }
       });
     }});
-    fs.copyFile(path, dest, (err) => {
+    copyFile(path, dest, (err) => {
       if (err) {
         return;
       }
@@ -59,12 +59,12 @@ class Task {
 
   insert(path, text) {
     this.scripts.push(async () => {
-      const data = fs.readFileSync(path);
-      const fd = fs.openSync(path, 'w+');
+      const data = readFileSync(path);
+      const fd = openSync(path, 'w+');
       const insert = new Buffer.from('#define '+text+'\n');
-      fs.writeSync(fd, insert, 0, insert.length, 0);
-      fs.writeSync(fd, data, 0, data.length, insert.length);
-      fs.close(fd, (err) => {
+      writeSync(fd, insert, 0, insert.length, 0);
+      writeSync(fd, data, 0, data.length, insert.length);
+      close(fd, (err) => {
         if (err) throw err;
       });
     });
@@ -73,7 +73,7 @@ class Task {
 
   move(path, dest) {
     this.scripts.push(async () => {
-      fs.rename(path, dest, (err) => {
+      rename(path, dest, (err) => {
         if (err) {
             if (err.code === 'EXDEV') {
                 copy(path, dest);
@@ -110,9 +110,9 @@ class Task {
       /**
        * @returns {Script[]}
        */
-      const getScripts = scripts => scripts
-        .flatMap(script => {
-          if (script) {
+      const getScripts = _scripts => scripts
+        .flatMap(_script => {
+          if (_script) {
             return script;
           }
         })
@@ -170,7 +170,7 @@ const runTasks = async tasks => {
   process.exit();
 };
 
-module.exports = {
+export default {
   Task,
   runTasks
 };

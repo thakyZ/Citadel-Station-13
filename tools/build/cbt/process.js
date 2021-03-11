@@ -78,9 +78,6 @@ const exec = (executable, args, options) => {
     }
     const child = spawn(executable, args, options);
     children.add(child);
-    child.stdout.on('data', data => {
-      process.stdout.write(data);
-    });
     child.stderr.on('data', data => {
       process.stderr.write(data);
     });
