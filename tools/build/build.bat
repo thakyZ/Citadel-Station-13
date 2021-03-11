@@ -1,2 +1,1 @@
-@call powershell.exe -NoLogo -ExecutionPolicy Bypass -File "%~dp0\build.ps1"
-
+@"%~dp0\..\bootstrap\node" "%~dp0\build.js"

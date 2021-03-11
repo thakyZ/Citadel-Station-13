@@ -72,7 +72,6 @@ if (!(Test-Path "$PythonDir/Scripts/pip.exe")) {
 	Remove-Item "$Cache/get-pip.py" `
 		-ErrorAction Stop
 }
-$env:PSModulePath = "$PSHOME/Modules";
 # Use pip to install our requirements
 if (!(Test-Path "$PythonDir/requirements.txt") -or ((Get-FileHash "$Tools/requirements.txt").hash -ne (Get-FileHash "$PythonDir/requirements.txt").hash)) {
 	$host.ui.RawUI.WindowTitle = "Updating dependencies..."

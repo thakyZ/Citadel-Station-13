@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 
 #Project dependencies file
 #Final authority on what's required to fully build the project
 
 # byond version
 export BYOND_MAJOR=513
-export BYOND_MINOR=1533
+export BYOND_MINOR=1536
 
 #rust_g git tag
 export RUST_G_VERSION=0.4.7
