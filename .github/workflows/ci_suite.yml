@@ -23,6 +23,9 @@ jobs:
           pip3 install setuptools
           bash tools/ci/install_node.sh
           bash tools/ci/install_spaceman_dmm.sh dreamchecker
+          curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+          tools/bootstrap/.cache/venv/bin/python get-pip.py
+          chmod +x tools/bootstrap/python
           tools/bootstrap/python -c ''
       - name: Run Linters
         run: |
