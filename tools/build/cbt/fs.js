@@ -4,8 +4,8 @@
  * @license MIT
  */
 
-import { utimesSync, closeSync, openSync, statSync } from 'fs';
-import glob from './glob';
+const fs = require("fs");
+const glob = require("./glob");
 
 class File {
   constructor(path) {
@@ -30,10 +30,9 @@ class File {
   touch() {
     const time = new Date();
     try {
-      utimesSync(this.path, time, time);
-    }
-    catch (err) {
-      closeSync(openSync(this.path, 'w'));
+      fs.utimesSync(this.path, time, time);
+    } catch (err) {
+      fs.closeSync(fs.openSync(this.path, "w"));
     }
   }
 }
@@ -48,9 +47,7 @@ class Glob {
       strict: false,
       silent: true,
     });
-    return paths
-      .map(path => new File(path))
-      .filter(file => file.exists());
+    return paths.map((path) => new File(path)).filter((file) => file.exists());
   }
 }
 
@@ -80,11 +77,11 @@ const compareFiles = (sources, targets) => {
     if (bestTarget) {
       return false;
     }
-    return 'no known sources or targets';
+    return "no known sources or targets";
   }
   // Always needs a rebuild if no targets were specified (e.g. due to GLOB).
   if (!bestTarget) {
-    return 'no targets were specified';
+    return "no targets were specified";
   }
   // Needs rebuild if source is newer than target
   if (bestSource.mtime > bestTarget.mtime) {
@@ -97,11 +94,10 @@ const compareFiles = (sources, targets) => {
  * Returns file stats for the provided path, or null if file is
  * not accessible.
  */
-const stat = path => {
+const stat = (path) => {
   try {
-    return statSync(path);
-  }
-  catch {
+    return fs.statSync(path);
+  } catch {
     return null;
   }
 };
@@ -110,7 +106,7 @@ const stat = path => {
  * Resolves a glob pattern and returns files that are safe
  * to call `stat` on.
  */
-const resolveGlob = globPath => {
+const resolveGlob = (globPath) => {
   const unsafePaths = glob.sync(globPath, {
     strict: false,
     silent: true,
@@ -118,15 +114,14 @@ const resolveGlob = globPath => {
   const safePaths = [];
   for (let path of unsafePaths) {
     try {
-      statSync(path);
+      fs.statSync(path);
       safePaths.push(path);
-    }
-    catch {}
+    } catch {}
   }
   return safePaths;
 };
 
-export default {
+module.exports = {
   File,
   Glob,
   compareFiles,
