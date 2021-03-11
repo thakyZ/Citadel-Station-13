@@ -1,5 +1,5 @@
 # base = ubuntu + full apt update
-FROM ubuntu:xenial AS base
+FROM ubuntu:focal AS base
 
 RUN dpkg --add-architecture i386 \
     && apt-get update \
@@ -11,8 +11,6 @@ RUN dpkg --add-architecture i386 \
 # byond = base + byond installed globally
 FROM base AS byond
 WORKDIR /byond
-
-RUN apt-get update
 
 RUN apt-get install -y --no-install-recommends \
         curl \
