@@ -1,28 +1,31 @@
-# base = ubuntu + full apt update
-FROM mcr.microsoft.com/windows:10.0.17763.973 AS base
-
-LABEL maintainer="950594+thakyZ@users.noreply.github.com"
+# escape=`
+ARG BASE
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-nanoserver-$BASE AS base
 
 # byond = base + byond installed globally
-FROM base AS byond
-WORKDIR "/byond"
+WORKDIR /byond
 
-COPY dependencies.sh .
+COPY ["./dependencies.sh," "./"]
 
-RUN powershell ".\\download_byond.ps1" %CD%
+RUN pwsh -Command " `
+    $BYOND_MAJOR=513
+    $BYOND_MINOR=1536
+    Invoke-WebRequest -Uri ((Invoke-WebRequest -Uri "http://www.byond.com/download/build/${BYOND_MAJOR}/${BYOND_MAJOR}.${BYOND_MINOR}_byond.zip"))
+
+    (Expand-Archive byond.zip -DestinationPath  -oc:\byond *.* -r &&
+        Copy-Item -Path "/byond/boynd/." -Recurse -Destination "${DIR}\." &&
+        Remove-Item "/byond/byond.zip" ) || exit 1`"
+
+
 
 # build = byond + tgstation compiled and deployed to /deploy
-FROM byond AS build
 WORKDIR /tgstation
 
 RUN cmd /C .\Build.bat
 
 # final = byond + runtime deps + rust_g + build
-FROM byond
 WORKDIR /tgstation
 
-COPY --from=build /tgstation ./
-
 VOLUME [ "c:/tgstation/config", "c:/tgstation/data" ]
-ENTRYPOINT [ "DreamDaemon", "tgstation.dmb", "-port", "5000", "-trusted", "-close", "-verbose" ]
+ENTRYPOINT [ "/byond/bin/dreamdaemon.exe", "tgstation.dmb", "-port", "5000", "-trusted", "-close", "-verbose" ]
 EXPOSE 5000
