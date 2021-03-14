@@ -1,5 +1,5 @@
 # base = ubuntu + full apt update
-FROM mcr.microsoft.com/windows:10.0.17763 AS base
+FROM mcr.microsoft.com/windows:10.0.17763.973 AS base
 
 LABEL maintainer="950594+thakyZ@users.noreply.github.com"
 
