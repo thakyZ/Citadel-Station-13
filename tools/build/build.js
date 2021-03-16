@@ -58,6 +58,12 @@ const taskDm = new Task('dm')
     if (process.platform === 'win32') {
       const installPath = (
         await regQuery(
+          'HKCU\\Environment\\DM_EXE',
+          'installpath')
+        || await regQuery(
+          'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment',
+          'installpath')
+        || await regQuery(
           'HKLM\\Software\\Dantom\\BYOND',
           'installpath')
         || await regQuery(
