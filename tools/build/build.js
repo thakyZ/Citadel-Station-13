@@ -56,13 +56,12 @@ const taskDm = new Task('dm')
     let compiler = 'dm';
     // Let's do some registry queries on Windows, because dm is not in PATH.
     if (process.platform === 'win32') {
-      const installPath = (
-        await regQuery(
-          'HKCU\\Environment\\DM_EXE',
-          'installpath')
+      const installPath = (await regQuery(
+          'HKCU\\Environment',
+          'DM_EXE')
         || await regQuery(
           'HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment',
-          'installpath')
+          'DM_EXE')
         || await regQuery(
           'HKLM\\Software\\Dantom\\BYOND',
           'installpath')
@@ -70,6 +69,7 @@ const taskDm = new Task('dm')
           'HKLM\\SOFTWARE\\WOW6432Node\\Dantom\\BYOND',
           'installpath')
       );
+      console.log(installPath);
       if (installPath) {
         compiler = resolvePath(installPath, 'bin/dm.exe');
       }

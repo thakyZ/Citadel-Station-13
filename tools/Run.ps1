@@ -4,7 +4,7 @@ param (
 	$Log,
 	[Parameter(Mandatory=$false,HelpMessage="(Optional) Port for the server to run on.")]
 	[int]
-	$Port=1337
+	$Port=24024
 )
 
 $byondInstall = $null;
@@ -24,9 +24,11 @@ if (Get-Location | Select-String -Pattern "tools")
     $projectFolder = Get-Location ".."
 }
 
-$byondArgs = "${projectFolder}\tgstation.dmb","-port","${Port}","-trusted","-close"
+$date = Get-Date -Format "yyyy-MM-dd"
+
+$byondArgs = "`"${projectFolder}\tgstation.dmb`"","-port","${Port}","-trusted","-close"
 if ($Log) {
-	$byondArgs = ${byondArgs},"-log","`"data\logs\runtimes\runtime-%CUR_DATE%.log`""
+	$byondArgs += "-log","`"data\logs\runtimes\runtime-$($date).log`""
 }
 
 function Start-DreamDaemon() {
