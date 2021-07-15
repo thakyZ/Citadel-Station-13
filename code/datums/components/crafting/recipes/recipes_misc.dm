@@ -336,6 +336,18 @@
 	subcategory = CAT_TOOL
 	category = CAT_MISC
 
+/datum/crafting_recipe/blackmarket_uplink
+	name = "Black Market Uplink"
+	result = /obj/item/blackmarket_uplink
+	time = 20
+	tools = list(TOOL_SCREWDRIVER, TOOL_WIRECUTTER)
+	reqs = list(/obj/item/stock_parts/subspace/amplifier = 1,
+		/obj/item/stack/cable_coil = 15,
+		/obj/item/radio = 1,
+		/obj/item/analyzer = 1)
+	subcategory = CAT_MISCELLANEOUS
+	category = CAT_MISC
+
 /datum/crafting_recipe/heretic/codex
 	name = "Codex Cicatrix"
 	result = /obj/item/forbidden_book
@@ -359,6 +371,20 @@
 	reqs = list(/obj/item/stack/sheet/plasteel = 2,
 				/obj/item/stack/rods = 8)
 	time = 100
+	subcategory = CAT_MISCELLANEOUS
+	category = CAT_MISC
+
+/datum/crafting_recipe/motorized_wheelchair
+	name = "Hoverchair"
+	result = /obj/vehicle/ridden/wheelchair/motorized
+	reqs = list(/obj/item/stack/sheet/plasteel = 10,
+		/obj/item/stack/rods = 8,
+		/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/capacitor = 1)
+	parts = list(/obj/item/stock_parts/manipulator = 2,
+		/obj/item/stock_parts/capacitor = 1)
+	tools = list(TOOL_WELDER, TOOL_SCREWDRIVER, TOOL_WRENCH)
+	time = 200
 	subcategory = CAT_MISCELLANEOUS
 	category = CAT_MISC
 
