@@ -15,7 +15,6 @@
 
 	block_parry_data = /datum/block_parry_data/unarmed/human
 	default_block_parry_data = /datum/block_parry_data/unarmed/human
-	causes_dirt_buildup_on_floor = TRUE
 
 	//Hair colour and style
 	var/hair_color = "000"
@@ -76,6 +75,8 @@
 	var/account_id
 	var/last_fire_update
 	var/hardcore_survival_score = 0
+
+	tooltips = TRUE
 
 /// Unarmed parry data for human
 /datum/block_parry_data/unarmed/human
@@ -141,7 +142,7 @@
 	)
 
 	parry_efficiency_considered_successful = 0.01
-	parry_efficiency_to_counterattack = 0.01
+	parry_efficiency_to_counterattack = INFINITY	// no counterattacks
 	parry_max_attacks = INFINITY
 	parry_failed_cooldown_duration =  1.5 SECONDS
 	parry_failed_stagger_duration = 1 SECONDS
