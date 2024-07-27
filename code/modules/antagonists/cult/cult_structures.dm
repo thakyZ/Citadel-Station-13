@@ -72,7 +72,7 @@
 		var/previouscolor = color
 		color = "#FAE48C"
 		animate(src, color = previouscolor, time = 8)
-		addtimer(CALLBACK(src, /atom/proc/update_atom_colour), 8)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 8)
 
 /obj/structure/destructible/cult/proc/check_menu(mob/living/user)
 	if(!user || user.incapacitated() || !iscultist(user) || !anchored || cooldowntime > world.time)
@@ -89,7 +89,7 @@
 	var/static/image/radial_shell = image(icon = 'icons/obj/wizard.dmi', icon_state = "construct-cult")
 	var/static/image/radial_unholy_water = image(icon = 'icons/obj/drinks.dmi', icon_state = "holyflask")
 
-/obj/structure/destructible/cult/talisman/Initialize()
+/obj/structure/destructible/cult/talisman/Initialize(mapload)
 	. = ..()
 	radial_unholy_water.color = "#333333"
 
@@ -111,7 +111,7 @@
 	to_chat(user, "<span class='cultitalic'>You study the schematics etched into the altar...</span>")
 
 	var/list/options = list("Eldritch Whetstone" = radial_whetstone, "Construct Shell" = radial_shell, "Flask of Unholy Water" = radial_unholy_water)
-	var/choice = show_radial_menu(user, src, options, custom_check = CALLBACK(src, .proc/check_menu, user), require_near = TRUE, tooltips = TRUE)
+	var/choice = show_radial_menu(user, src, options, custom_check = CALLBACK(src, PROC_REF(check_menu), user), require_near = TRUE, tooltips = TRUE)
 
 	var/reward
 	switch(choice)
@@ -158,7 +158,7 @@
 
 
 	var/list/options = list("Shielded Robe" = radial_shielded, "Flagellant's Robe" = radial_flagellant, "Mirror Shield" = radial_mirror)
-	var/choice = show_radial_menu(user, src, options, custom_check = CALLBACK(src, .proc/check_menu, user), require_near = TRUE, tooltips = TRUE)
+	var/choice = show_radial_menu(user, src, options, custom_check = CALLBACK(src, PROC_REF(check_menu), user), require_near = TRUE, tooltips = TRUE)
 
 	var/reward
 	switch(choice)
@@ -219,7 +219,7 @@
 					if(M.health < M.maxHealth)
 						M.adjustHealth(-3)
 			if(ishuman(L) && L.blood_volume < (BLOOD_VOLUME_NORMAL * L.blood_ratio))
-				L.blood_volume += 1.0
+				L.adjust_integration_blood(1.0)
 		CHECK_TICK
 
 
@@ -294,7 +294,7 @@
 	to_chat(user, "<span class='cultitalic'>You flip through the black pages of the archives...</span>")
 
 	var/list/options = list("Zealot's Blindfold" = radial_blindfold, "Shuttle Curse" = radial_curse, "Veil Walker Set" = radial_veilwalker)
-	var/choice = show_radial_menu(user, src, options, custom_check = CALLBACK(src, .proc/check_menu, user), require_near = TRUE, tooltips = TRUE)
+	var/choice = show_radial_menu(user, src, options, custom_check = CALLBACK(src, PROC_REF(check_menu), user), require_near = TRUE, tooltips = TRUE)
 
 	var/reward
 	switch(choice)

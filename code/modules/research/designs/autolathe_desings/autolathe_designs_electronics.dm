@@ -56,7 +56,7 @@
 	id = "desttagger"
 	build_type = AUTOLATHE | PROTOLATHE
 	materials = list(/datum/material/iron = 250, /datum/material/glass = 125)
-	build_path = /obj/item/destTagger
+	build_path = /obj/item/dest_tagger
 	category = list("initial", "Electronics")
 
 /datum/design/handlabeler
@@ -90,3 +90,12 @@
 	materials = list(/datum/material/iron = 2010, /datum/material/glass = 5)
 	build_path = /obj/item/electronics/electrochromatic_kit
 	category = list("initial", "Electronics")
+
+/datum/design/salestagger
+	name = "Sales Tagger"
+	id = "salestagger"
+	build_type = AUTOLATHE | PROTOLATHE
+	materials = list(/datum/material/iron = 700, /datum/material/glass = 200)
+	build_path = /obj/item/sales_tagger
+	category = list("initial", "Electronics")
+	departmental_flags = DEPARTMENTAL_FLAG_CARGO | DEPARTMENTAL_FLAG_SERVICE

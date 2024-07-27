@@ -18,9 +18,21 @@
 	minimal_access = list(ACCESS_TOX, ACCESS_TOX_STORAGE, ACCESS_RESEARCH, ACCESS_XENOBIOLOGY, ACCESS_MINERAL_STOREROOM)
 	paycheck = PAYCHECK_MEDIUM
 	paycheck_department = ACCOUNT_SCI
-
+	bounty_types = CIV_JOB_SCI
+	departments = DEPARTMENT_BITFLAG_SCIENCE
+	starting_modifiers = list(/datum/skill_modifier/job/level/wiring/basic)
 	display_order = JOB_DISPLAY_ORDER_SCIENTIST
 	threat = 1.2
+
+	family_heirlooms = list(
+		/obj/item/toy/plush/slimeplushie
+	)
+
+	mail_goodies = list(
+		/obj/item/raw_anomaly_core/random = 10,
+//		/obj/item/disk/tech_disk/spaceloot = 2,
+		/obj/item/camera_bug = 1
+	)
 
 /datum/outfit/job/scientist
 	name = "Scientist"

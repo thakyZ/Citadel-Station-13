@@ -1,4 +1,4 @@
-/mob/living/carbon/alien/BiologicalLife(seconds, times_fired)
+/mob/living/carbon/alien/BiologicalLife(delta_time, times_fired)
 	if(!(. = ..()))
 		return
 	findQueen()
@@ -9,7 +9,7 @@
 
 	if(!breath || (breath.total_moles() == 0))
 		//Aliens breathe in vaccuum
-		return 0
+		return FALSE
 
 	var/toxins_used = 0
 	var/tox_detect_threshold = 0.02
@@ -20,7 +20,7 @@
 
 	if(Toxins_pp > tox_detect_threshold) // Detect toxins in air
 		adjustPlasma(breath.get_moles(GAS_PLASMA)*250)
-		throw_alert("alien_tox", /obj/screen/alert/alien_tox)
+		throw_alert("alien_tox", /atom/movable/screen/alert/alien_tox)
 
 		toxins_used = breath.get_moles(GAS_PLASMA)
 

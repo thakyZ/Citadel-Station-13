@@ -83,6 +83,7 @@
 	item_state = "laser"
 	desc = "An industrial-grade heavy-duty laser rifle with a modified laser lens to scatter its shot into multiple smaller lasers. The inner-core can self-charge for theoretically infinite use."
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/scatter, /obj/item/ammo_casing/energy/laser)
+	shaded_charge = FALSE
 
 /obj/item/gun/energy/laser/cyborg
 	can_charge = FALSE
@@ -204,7 +205,7 @@
 	throwforce = 10
 	obj_flags = UNIQUE_RENAME
 
-/obj/item/gun/energy/laser/redtag/hitscan/chaplain/Initialize()
+/obj/item/gun/energy/laser/redtag/hitscan/chaplain/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/anti_magic, TRUE, TRUE, FALSE, null, null, FALSE)
 

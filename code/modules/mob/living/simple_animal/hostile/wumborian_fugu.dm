@@ -38,7 +38,7 @@
 	var/datum/action/innate/fugu/expand/E
 	loot = list(/obj/item/fugu_gland{layer = ABOVE_MOB_LAYER})
 
-/mob/living/simple_animal/hostile/asteroid/fugu/Initialize()
+/mob/living/simple_animal/hostile/asteroid/fugu/Initialize(mapload)
 	. = ..()
 	E = new
 	E.Grant(src)
@@ -47,7 +47,7 @@
 	QDEL_NULL(E)
 	return ..()
 
-/mob/living/simple_animal/hostile/asteroid/fugu/BiologicalLife(seconds, times_fired)
+/mob/living/simple_animal/hostile/asteroid/fugu/BiologicalLife(delta_time, times_fired)
 	if(!(. = ..()))
 		return
 	if(!wumbo)
@@ -96,7 +96,7 @@
 	F.environment_smash = ENVIRONMENT_SMASH_WALLS
 	F.mob_size = MOB_SIZE_LARGE
 	F.speed = 1
-	addtimer(CALLBACK(F, /mob/living/simple_animal/hostile/asteroid/fugu/proc/Deflate), 100)
+	addtimer(CALLBACK(F, TYPE_PROC_REF(/mob/living/simple_animal/hostile/asteroid/fugu, Deflate)), 100)
 
 /mob/living/simple_animal/hostile/asteroid/fugu/proc/Deflate()
 	if(wumbo)

@@ -42,7 +42,7 @@
 	fair_market_price = 5 // He nodded, because he knew I was right. Then he swiped his credit card to pay me for arresting him.
 	payment_department = ACCOUNT_MED
 
-/obj/machinery/clonepod/Initialize()
+/obj/machinery/clonepod/Initialize(mapload)
 	. = ..()
 
 	countdown = new(src)
@@ -137,7 +137,7 @@
 			if(G.suiciding) // The ghost came from a body that is suiciding.
 				return FALSE
 		if(clonemind.damnation_type) //Can't clone the damned.
-			INVOKE_ASYNC(src, .proc/horrifyingsound)
+			INVOKE_ASYNC(src, PROC_REF(horrifyingsound))
 			mess = TRUE
 			update_icon()
 			return FALSE
@@ -388,7 +388,7 @@
 		to_chat(occupant, "<span class='notice'><b>There is a bright flash!</b><br><i>You feel like a new being.</i></span>")
 		mob_occupant.flash_act()
 
-	var/list/policies = CONFIG_GET(keyed_list/policyconfig)
+	var/list/policies = CONFIG_GET(keyed_list/policy)
 	var/policy = policies[POLICYCONFIG_ON_CLONE]
 	if(policy)
 		to_chat(occupant, policy)
@@ -439,7 +439,7 @@
 			mob_occupant.copy_from_prefs_vr()
 			go_out()
 
-/obj/machinery/clonepod/ex_act(severity, target)
+/obj/machinery/clonepod/ex_act(severity, target, origin)
 	..()
 	if(!QDELETED(src))
 		go_out()

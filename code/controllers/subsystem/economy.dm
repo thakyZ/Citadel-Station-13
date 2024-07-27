@@ -47,6 +47,20 @@ SUBSYSTEM_DEF(economy)
 							"rainbow" = 1000)
 	var/list/bank_accounts = list() //List of normal accounts (not department accounts)
 	var/list/dep_cards = list()
+	///The modifier multiplied to the value of bounties paid out.
+	var/bounty_modifier = 1
+	///The modifier multiplied to the value of cargo pack prices.
+	var/pack_price_modifier = 1
+
+	var/civ_bounty_tracker = 0
+	/// Contains the message to send to newscasters about earnings, updated on price_update()
+
+	/// Total value of exported materials.
+	var/export_total = 0
+	/// Total value of imported goods.
+	var/import_total = 0
+	/// Number of mail items generated.
+	var/mail_waiting = 0
 
 /datum/controller/subsystem/economy/Initialize(timeofday)
 	var/budget_to_hand_out = round(budget_pool / department_accounts.len)
@@ -55,6 +69,7 @@ SUBSYSTEM_DEF(economy)
 	return ..()
 
 /datum/controller/subsystem/economy/fire(resumed = 0)
+	var/delta_time = wait * 0.2
 	eng_payout()  // Payout based on nothing. What will replace it? Surplus power, powered APC's, air alarms? Who knows.
 	sci_payout() // Payout based on slimes.
 	secmedsrv_payout() // Payout based on crew safety, health, and mood.
@@ -63,7 +78,8 @@ SUBSYSTEM_DEF(economy)
 	for(var/account in bank_accounts)
 		var/datum/bank_account/bank_account = account
 		bank_account.payday(1)
-
+	var/effective_mailcount = round(living_player_count() / (rand(1, 5) - 0.5)) // fake inflation // (inflation_value - 0.5)) //More mail at low inflation, and vis versa.
+	mail_waiting += clamp(effective_mailcount, 1, MAX_MAIL_PER_MINUTE * delta_time)
 
 /datum/controller/subsystem/economy/proc/get_dep_account(dep_id)
 	for(var/datum/bank_account/department/D in generated_accounts)

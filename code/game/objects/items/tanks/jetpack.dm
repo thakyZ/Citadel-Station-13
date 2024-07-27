@@ -14,10 +14,14 @@
 	var/full_speed = TRUE // If the jetpack will have a speedboost in space/nograv or not
 	var/datum/effect_system/trail_follow/ion/ion_trail
 
-/obj/item/tank/jetpack/Initialize()
+/obj/item/tank/jetpack/Initialize(mapload)
 	. = ..()
 	ion_trail = new
 	ion_trail.set_up(src)
+
+/obj/item/tank/jetpack/Destroy()
+	QDEL_NULL(ion_trail)
+	return ..()
 
 /obj/item/tank/jetpack/populate_gas()
 	if(gas_type)
@@ -46,13 +50,13 @@
 		to_chat(user, "<span class='notice'>You turn the jetpack off.</span>")
 	for(var/X in actions)
 		var/datum/action/A = X
-		A.UpdateButtonIcon()
+		A.UpdateButtons()
 
 /obj/item/tank/jetpack/proc/turn_on(mob/user)
 	on = TRUE
 	icon_state = "[initial(icon_state)]-on"
 	ion_trail.start()
-	RegisterSignal(user, COMSIG_MOVABLE_MOVED, .proc/move_react)
+	RegisterSignal(user, COMSIG_MOVABLE_MOVED, PROC_REF(move_react))
 	if(full_speed)
 		user.add_movespeed_modifier(/datum/movespeed_modifier/jetpack/fullspeed)
 	else
@@ -181,7 +185,7 @@
 	var/obj/item/tank/internals/tank = null
 	var/mob/living/carbon/human/cur_user
 
-/obj/item/tank/jetpack/suit/Initialize()
+/obj/item/tank/jetpack/suit/Initialize(mapload)
 	. = ..()
 	STOP_PROCESSING(SSobj, src)
 	temp_air_contents = air_contents
@@ -235,9 +239,13 @@
 	return
 
 /mob/living/carbon/get_jetpack()
-	var/obj/item/tank/jetpack/J = back
-	if(istype(J))
-		return J
+	var/obj/item/I = back
+	if(istype(I, /obj/item/tank/jetpack))
+		return I
+	else if(istype(I, /obj/item/mod/control))
+		var/obj/item/mod/control/C = I
+		for(var/obj/item/mod/module/jetpack/J in C.modules)
+			return J
 
 /mob/living/carbon/human/get_jetpack()
 	var/obj/item/tank/jetpack/J = ..()

@@ -12,6 +12,8 @@
 
 	var/obj/machinery/atmospherics/components/unary/heat_exchanger/partner = null
 	var/update_cycle
+	var/old_temperature = 0
+	var/other_old_temperature = 0
 
 	pipe_state = "heunary"
 
@@ -24,6 +26,7 @@
 	icon_state = "he_map-3"
 
 /obj/machinery/atmospherics/components/unary/heat_exchanger/update_icon()
+	. = ..()
 	if(nodes[1])
 		icon_state = "he1"
 		var/obj/machinery/atmospherics/node = nodes[1]
@@ -59,9 +62,6 @@
 	var/other_air_heat_capacity = partner_air_contents.heat_capacity()
 	var/combined_heat_capacity = other_air_heat_capacity + air_heat_capacity
 
-	var/old_temperature = air_contents.return_temperature()
-	var/other_old_temperature = partner_air_contents.return_temperature()
-
 	if(combined_heat_capacity > 0)
 		var/combined_energy = partner_air_contents.return_temperature()*other_air_heat_capacity + air_heat_capacity*air_contents.return_temperature()
 
@@ -71,6 +71,8 @@
 
 	if(abs(old_temperature-air_contents.return_temperature()) > 1)
 		update_parents()
+		old_temperature = air_contents.return_temperature()
 
 	if(abs(other_old_temperature-partner_air_contents.return_temperature()) > 1)
 		partner.update_parents()
+		other_old_temperature = partner_air_contents.return_temperature()

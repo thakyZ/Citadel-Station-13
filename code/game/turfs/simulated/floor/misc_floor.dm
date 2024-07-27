@@ -18,7 +18,7 @@
 	floor_tile = /obj/item/stack/tile/circuit
 	var/on = TRUE
 
-/turf/open/floor/circuit/Initialize()
+/turf/open/floor/circuit/Initialize(mapload)
 	SSmapping.nuke_tiles += src
 	update_icon()
 	. = ..()
@@ -28,6 +28,7 @@
 	return ..()
 
 /turf/open/floor/circuit/update_icon()
+	. = ..()
 	if(on)
 		if(LAZYLEN(SSmapping.nuke_threats))
 			icon_state = "rcircuitanim"
@@ -151,7 +152,7 @@
 /turf/open/floor/clockwork/Bless() //Who needs holy blessings when you have DADDY RATVAR?
 	return
 
-/turf/open/floor/clockwork/Initialize()
+/turf/open/floor/clockwork/Initialize(mapload)
 	. = ..()
 	if(uses_overlay)
 		new /obj/effect/temp_visual/ratvar/floor(src)
@@ -230,7 +231,7 @@
 		var/previouscolor = color
 		color = "#960000"
 		animate(src, color = previouscolor, time = 8)
-		addtimer(CALLBACK(src, /atom/proc/update_atom_colour), 8)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/atom, update_atom_colour)), 8)
 
 /turf/open/floor/clockwork/reebe
 	name = "cogplate"
@@ -263,7 +264,7 @@
 
 /turf/open/floor/padded
 	name = "padded floor"
-	desc = "Keeps crazy people from hurting themselves. It's soft, plush, and very nice to get shoved agaisnt."
+	desc = "Keeps crazy people from hurting themselves. It's soft, plush, and very nice to get shoved against."
 	icon = 'icons/turf/floors.dmi'
 	icon_state = "floor_padded"
 	floor_tile = /obj/item/stack/tile/padded

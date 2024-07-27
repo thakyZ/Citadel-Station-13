@@ -226,7 +226,7 @@
 	invisibility = INVISIBILITY_ABSTRACT
 	var/obj/machinery/parent
 
-/obj/structure/filler/ex_act()
+/obj/structure/filler/ex_act(severity, target, origin)
 	return
 
 /obj/machinery/computer/bsa_control
@@ -235,6 +235,7 @@
 	circuit = /obj/item/circuitboard/computer/bsa_control
 	icon = 'icons/obj/machines/particle_accelerator.dmi'
 	icon_state = "control_boxp"
+	icon_keyboard = null
 
 	var/obj/machinery/bsa/full/cannon
 	var/notice

@@ -11,7 +11,7 @@
 	if(!isitem(target))
 		return ELEMENT_INCOMPATIBLE
 
-	RegisterSignal(target, list(COMSIG_ITEM_EQUIPPED, COMSIG_ITEM_DROPPED), .proc/equippedChanged)
+	RegisterSignal(target, list(COMSIG_ITEM_EQUIPPED, COMSIG_ITEM_DROPPED), PROC_REF(equippedChanged))
 
 /datum/element/earhealing/Detach(datum/target)
 	. = ..()
@@ -19,7 +19,7 @@
 	user_by_item -= target
 
 /datum/element/earhealing/proc/equippedChanged(datum/source, mob/living/carbon/user, slot)
-	if(slot == SLOT_EARS && istype(user))
+	if(slot == ITEM_SLOT_EARS && istype(user))
 		user_by_item[source] = user
 	else
 		user_by_item -= source

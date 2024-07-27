@@ -16,7 +16,6 @@
 	var/datum/radio_frequency/radio_connection
 
 	level = 1
-	interacts_with_air = TRUE
 	layer = GAS_SCRUBBER_LAYER
 
 	pipe_state = "injector"
@@ -24,13 +23,16 @@
 /obj/machinery/atmospherics/components/unary/outlet_injector/CtrlClick(mob/user)
 	if(can_interact(user))
 		on = !on
-		update_icon()
+		investigate_log("was turned [on ? "on" : "off"] by [key_name(user)]", INVESTIGATE_ATMOS)
+		update_appearance()
 	return ..()
 
 /obj/machinery/atmospherics/components/unary/outlet_injector/AltClick(mob/user)
 	if(can_interact(user))
 		volume_rate = MAX_TRANSFER_RATE
-		update_icon()
+		investigate_log("was set to [volume_rate] L/s by [key_name(user)]", INVESTIGATE_ATMOS)
+		balloon_alert(user, "volume output set to [volume_rate] L/s")
+		update_appearance()
 	return ..()
 
 /obj/machinery/atmospherics/components/unary/outlet_injector/Destroy()
@@ -124,7 +126,7 @@
 		on = !on
 
 	if("inject" in signal.data)
-		INVOKE_ASYNC(src, .proc/inject)
+		INVOKE_ASYNC(src, PROC_REF(inject))
 		return
 
 	if("set_volume_rate" in signal.data)
@@ -132,7 +134,7 @@
 		var/datum/gas_mixture/air_contents = airs[1]
 		volume_rate = clamp(number, 0, air_contents.return_volume())
 
-	addtimer(CALLBACK(src, .proc/broadcast_status), 2)
+	addtimer(CALLBACK(src, PROC_REF(broadcast_status)), 2)
 
 	if(!("status" in signal.data)) //do not update_icon
 		update_icon()

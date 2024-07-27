@@ -1,19 +1,33 @@
 //every quirk in this folder should be coded around being applied on spawn
 //these are NOT "mob quirks" like GOTTAGOFAST, but exist as a medium to apply them and other different effects
 /datum/quirk
+	/// The name of the quirk
 	var/name = "Test Quirk"
+	/// The description of the quirk
 	var/desc = "This is a test quirk."
+	/// What the quirk is worth in preferences, zero = neutral / free
 	var/value = 0
 	var/human_only = TRUE
+	/// Text displayed when this quirk is assigned to a mob (and not transferred)
 	var/gain_text
+	/// Text displayed when this quirk is removed from a mob (and not transferred)
 	var/lose_text
-	var/medical_record_text //This text will appear on medical records for the trait. Not yet implemented
-	var/antag_removal_text // Text will be given to the quirk holder if they get an antag that has it blacklisted.
+	/// This text will appear on medical records for the trait.
+	var/medical_record_text
+	/// Text will be given to the quirk holder if they get an antag that has it blacklisted.
+	var/antag_removal_text
 	var/mood_quirk = FALSE //if true, this quirk affects mood and is unavailable if moodlets are disabled
-	var/mob_trait //if applicable, apply and remove this mob trait
+	/// if applicable, apply and remove this mob trait
+	var/mob_trait
 	/// should we immediately call on_spawn or add a timer to trigger
 	var/on_spawn_immediate = TRUE
+	/// Reference to the mob currently tied to this quirk datum. Quirks are not singletons.
 	var/mob/living/quirk_holder
+	var/processing_quirk = FALSE
+	/// A lazylist of items people can receive from mail who have this quirk enabled
+	/// The base weight for the each quirk's mail goodies list to be selected is 5
+	/// then the item selected is determined by pick(selected_quirk.mail_goodies)
+	var/list/mail_goodies
 
 /datum/quirk/New(mob/living/quirk_mob, spawn_effects)
 	if(!quirk_mob || (human_only && !ishuman(quirk_mob)) || quirk_mob.has_quirk(type))
@@ -21,24 +35,28 @@
 		return
 	quirk_holder = quirk_mob
 	SSquirks.quirk_objects += src
-	to_chat(quirk_holder, gain_text)
+	if(gain_text)
+		to_chat(quirk_holder, gain_text)
 	quirk_holder.roundstart_quirks += src
 	if(mob_trait)
 		ADD_TRAIT(quirk_holder, mob_trait, ROUNDSTART_TRAIT)
-	START_PROCESSING(SSquirks, src)
+	if(processing_quirk)
+		START_PROCESSING(SSquirks, src)
 	add()
 	if(spawn_effects)
 		if(on_spawn_immediate)
 			on_spawn()
 		else
-			addtimer(CALLBACK(src, .proc/on_spawn), 0)
-		addtimer(CALLBACK(src, .proc/post_add), 30)
+			addtimer(CALLBACK(src, PROC_REF(on_spawn)), 0)
+		addtimer(CALLBACK(src, PROC_REF(post_add)), 30)
 
 /datum/quirk/Destroy()
-	STOP_PROCESSING(SSquirks, src)
+	if(processing_quirk)
+		STOP_PROCESSING(SSquirks, src)
 	remove()
 	if(quirk_holder)
-		to_chat(quirk_holder, lose_text)
+		if(lose_text)
+			to_chat(quirk_holder, lose_text)
 		quirk_holder.roundstart_quirks -= src
 		if(mob_trait)
 			REMOVE_TRAIT(quirk_holder, mob_trait, ROUNDSTART_TRAIT)
@@ -129,7 +147,7 @@ Use this as a guideline
 	var/mob/living/carbon/human/H = quirk_holder
 	var/obj/item/clothing/glasses/regular/glasses = new(get_turf(H))
 	H.put_in_hands(glasses)
-	H.equip_to_slot(glasses, SLOT_GLASSES)
+	H.equip_to_slot(glasses, ITEM_SLOT_EYES)
 	H.regenerate_icons()
 
 //This whole proc is called automatically

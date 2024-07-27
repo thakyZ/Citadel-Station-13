@@ -46,7 +46,7 @@
 	sharpness = SHARP_EDGED
 	total_mass = TOTAL_MASS_HAND_REPLACEMENT
 
-/obj/item/melee/synthetic_arm_blade/Initialize()
+/obj/item/melee/synthetic_arm_blade/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/butchering, 60, 80) //very imprecise
 
@@ -73,18 +73,18 @@
 
 /datum/block_parry_data/captain_saber
 	parry_time_windup = 0
-	parry_time_active = 6
+	parry_time_active = 10
 	parry_time_spindown = 0
 	parry_time_perfect = 0.75
-	parry_time_perfect_leeway = 0.75
+	parry_time_perfect_leeway = 1.5
 	parry_imperfect_falloff_percent = 30
 	parry_efficiency_perfect = 100
 	parry_failed_stagger_duration = 3 SECONDS
-	parry_failed_clickcd_duration = 1 SECONDS
+	parry_failed_clickcd_duration = 0
 	parry_flags = PARRY_DEFAULT_HANDLE_FEEDBACK
 	parry_automatic_enabled = TRUE
 
-/obj/item/melee/sabre/Initialize()
+/obj/item/melee/sabre/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/butchering, 30, 95, 5) //fast and effective, but as a sword, it might damage the results.
 	AddElement(/datum/element/sword_point)
@@ -107,7 +107,7 @@
 	..()
 
 /obj/item/melee/sabre/get_belt_overlay()
-	return mutable_appearance('icons/obj/clothing/belt_overlays.dmi', "sabre")
+	return mutable_appearance('icons/obj/clothing/belt_overlays.dmi', "sabre") // todo: make this and its rapier equivalent work for the inhands too
 
 /obj/item/melee/sabre/get_worn_belt_overlay(icon_file)
 	return mutable_appearance(icon_file, "-sabre")
@@ -139,8 +139,8 @@
 		var/speedbase = abs((4 SECONDS) / limbs_to_dismember.len)
 		for(bodypart in limbs_to_dismember)
 			i++
-			addtimer(CALLBACK(src, .proc/suicide_dismember, user, bodypart), speedbase * i)
-	addtimer(CALLBACK(src, .proc/manual_suicide, user), (5 SECONDS) * i)
+			addtimer(CALLBACK(src, PROC_REF(suicide_dismember), user, bodypart), speedbase * i)
+	addtimer(CALLBACK(src, PROC_REF(manual_suicide), user), (5 SECONDS) * i)
 	return MANUAL_SUICIDE
 
 /obj/item/melee/sabre/proc/suicide_dismember(mob/living/user, obj/item/bodypart/affecting)
@@ -179,19 +179,23 @@
 // Fast, efficient parry.
 /datum/block_parry_data/traitor_rapier
 	parry_time_windup = 0
-	parry_time_active = 6
+	parry_time_active = 10
 	parry_time_spindown = 0
 	parry_time_active_visual_override = 3
 	parry_time_spindown_visual_override = 2
 	parry_flags = PARRY_DEFAULT_HANDLE_FEEDBACK | PARRY_LOCK_ATTACKING
-	parry_time_perfect = 1
-	parry_time_perfect_leeway = 1
+	parry_time_perfect = 2
+	parry_time_perfect_leeway = 2
 	parry_time_perfect_leeway_override = list(
 		TEXT_ATTACK_TYPE_PROJECTILE = 1
 	)
 	parry_imperfect_falloff_percent = 30
-	parry_efficiency_to_counterattack = INFINITY
+	parry_efficiency_to_counterattack = 100
 	parry_efficiency_considered_successful = 1
+	parry_data = list(
+		PARRY_KNOCKDOWN_ATTACKER = 10,
+		PARRY_DISARM_ATTACKER = TRUE
+	)
 	parry_efficiency_perfect = 100
 	parry_stamina_cost = 5
 	parry_failed_stagger_duration = 2 SECONDS
@@ -204,7 +208,7 @@
 		. |= BLOCK_SHOULD_REDIRECT
 		return_list[BLOCK_RETURN_REDIRECT_METHOD] = REDIRECT_METHOD_DEFLECT
 
-/obj/item/melee/rapier/Initialize()
+/obj/item/melee/rapier/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/butchering, 20, 65, 0)
 
@@ -221,7 +225,7 @@
 	..()
 
 /obj/item/melee/rapier/get_belt_overlay()
-	return mutable_appearance('icons/obj/clothing/belt_overlays.dmi', "rapier")
+	return mutable_appearance('icons/obj/clothing/belt_overlays.dmi', "rapier") // todo: same as sabre
 
 /obj/item/melee/rapier/get_worn_belt_overlay(icon_file)
 	return mutable_appearance(icon_file, "-rapier")
@@ -273,7 +277,7 @@
 
 	wound_bonus = 15
 
-/obj/item/melee/classic_baton/Initialize()
+/obj/item/melee/classic_baton/Initialize(mapload)
 	. = ..()
 	if(sword_point)
 		AddElement(/datum/element/sword_point)
@@ -514,7 +518,7 @@
 	var/balanced = 1
 	force_string = "INFINITE"
 
-/obj/item/melee/supermatter_sword/Initialize()
+/obj/item/melee/supermatter_sword/Initialize(mapload)
 	. = ..()
 	shard = new /obj/machinery/power/supermatter_crystal(src)
 	qdel(shard.countdown)
@@ -553,7 +557,7 @@
 	..()
 	balanced = 0
 
-/obj/item/melee/supermatter_sword/ex_act(severity, target)
+/obj/item/melee/supermatter_sword/ex_act(severity, target, origin)
 	visible_message("<span class='danger'>The blast wave smacks into [src] and rapidly flashes to ash.</span>",\
 	"<span class='italics'>You hear a loud crack as you are washed with a wave of heat.</span>")
 	consume_everything()
@@ -621,7 +625,7 @@
 	var/datum/beam/beam
 	total_mass = 2.5
 
-/obj/item/melee/roastingstick/Initialize()
+/obj/item/melee/roastingstick/Initialize(mapload)
 	. = ..()
 	if (!ovens)
 		ovens = typecacheof(list(/obj/singularity, /obj/machinery/power/supermatter_crystal, /obj/structure/bonfire, /obj/structure/destructible/clockwork/massive/ratvar))
@@ -737,7 +741,7 @@
 	var/overlay_state = "mace_handle"
 	var/mutable_appearance/overlay
 
-/obj/item/melee/cleric_mace/Initialize()
+/obj/item/melee/cleric_mace/Initialize(mapload)
 	. = ..()
 	overlay = mutable_appearance(icon, overlay_state)
 	overlay.appearance_flags = RESET_COLOR

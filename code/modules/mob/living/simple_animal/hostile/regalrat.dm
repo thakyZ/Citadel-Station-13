@@ -29,19 +29,21 @@
 	var/datum/action/cooldown/riot
 	///Number assigned to rats and mice, checked when determining infighting.
 
-/mob/living/simple_animal/hostile/regalrat/Initialize()
+/mob/living/simple_animal/hostile/regalrat/Initialize(mapload)
 	. = ..()
 	coffer = new /datum/action/cooldown/coffer
 	coffer.Grant(src)
 	riot = new /datum/action/cooldown/riot
 	riot.Grant(src)
+	AddElement(/datum/element/ventcrawling, given_tier = VENTCRAWLER_ALWAYS)
+	INVOKE_ASYNC(src, PROC_REF(poll_for_player))
+
+/mob/living/simple_animal/hostile/regalrat/proc/poll_for_player()
 	var/list/mob/dead/observer/candidates = pollGhostCandidates("Do you want to play as the Royal Rat, cheesey be his crown?", ROLE_SENTIENCE, null, FALSE, 100, POLL_IGNORE_SENTIENCE_POTION)
 	if(LAZYLEN(candidates) && !mind)
 		var/mob/dead/observer/C = pick(candidates)
 		key = C.key
 		notify_ghosts("All rise for the rat king, ascendant to the throne in \the [get_area(src)].", source = src, action = NOTIFY_ORBIT, flashwindow = FALSE)
-
-	AddElement(/datum/element/ventcrawling, given_tier = VENTCRAWLER_ALWAYS)
 
 /mob/living/simple_animal/hostile/regalrat/handle_automated_action()
 	if(prob(20))
@@ -85,11 +87,9 @@
 	background_icon_state = "bg_clock"
 	button_icon_state = "coffer"
 	cooldown_time = 50
+	check_flags = AB_CHECK_CONSCIOUS
 
-/datum/action/cooldown/coffer/Trigger()
-	. = ..()
-	if(!.)
-		return
+/datum/action/cooldown/coffer/Activate()
 	var/turf/T = get_turf(owner)
 	var/loot = rand(1,100)
 	switch(loot)
@@ -129,12 +129,10 @@
 	button_icon_state = "riot"
 	background_icon_state = "bg_clock"
 	cooldown_time = 80
+	check_flags = AB_CHECK_CONSCIOUS
 	///Checks to see if there are any nearby mice. Does not count Rats.
 
-/datum/action/cooldown/riot/Trigger()
-	. = ..()
-	if(!.)
-		return
+/datum/action/cooldown/riot/Activate()
 	var/cap = CONFIG_GET(number/ratcap)
 	var/something_from_nothing = FALSE
 	for(var/mob/living/simple_animal/mouse/M in oview(owner, 5))
@@ -181,7 +179,7 @@
 	mob_biotypes = MOB_ORGANIC|MOB_BEAST
 	faction = list("rat")
 
-/mob/living/simple_animal/hostile/rat/Initialize()
+/mob/living/simple_animal/hostile/rat/Initialize(mapload)
 	. = ..()
 	SSmobs.cheeserats += src
 	AddComponent(/datum/component/swarming)

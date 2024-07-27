@@ -22,7 +22,7 @@
 	/// resets target on toggle
 	var/resets_target = TRUE
 
-/obj/item/pinpointer/Initialize()
+/obj/item/pinpointer/Initialize(mapload)
 	. = ..()
 	GLOB.pinpointer_list += src
 
@@ -61,7 +61,7 @@
 	if(target)
 		unset_target()
 	target = newtarget
-	RegisterSignal(target, COMSIG_PARENT_QDELETING, .proc/unset_target)
+	RegisterSignal(target, COMSIG_PARENT_QDELETING, PROC_REF(unset_target))
 
 /obj/item/pinpointer/proc/unset_target()
 	if(!target)

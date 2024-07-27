@@ -1,4 +1,9 @@
+/// Number of paychecks jobs start with at the creation of a new bank account for a player (So at shift-start or game join, but not a blank new account.)
 #define STARTING_PAYCHECKS 5
+/// How much mail the Economy SS will create per minute, regardless of firing time.
+#define MAX_MAIL_PER_MINUTE 3
+/// Probability of using letters of envelope sprites on all letters.
+#define FULL_CRATE_LETTER_ODDS 70
 
 #define PAYCHECK_ASSISTANT 25
 #define PAYCHECK_MINIMAL 75
@@ -52,3 +57,18 @@
 #define PRICE_ABOVE_EXPENSIVE	500 // RCD, Crew pinpointer/monitor, galoshes
 #define PRICE_REALLY_EXPENSIVE	700 // More premium stuff.
 #define PRICE_ALMOST_ONE_GRAND	900 // $$$ Insulated gloves, backpack water-tank spray $$$
+
+//Defines that set what kind of civilian bounties should be applied mid-round.
+#define CIV_JOB_BASIC 1
+#define CIV_JOB_ROBO 2
+#define CIV_JOB_CHEF 3
+#define CIV_JOB_SEC 4
+#define CIV_JOB_DRINK 5
+#define CIV_JOB_CHEM 6
+#define CIV_JOB_VIRO 7
+#define CIV_JOB_SCI 8
+#define CIV_JOB_ENG 9
+#define CIV_JOB_MINE 10
+#define CIV_JOB_MED 11
+#define CIV_JOB_GROW 12
+#define CIV_JOB_RANDOM 13

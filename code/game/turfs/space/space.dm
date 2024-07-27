@@ -33,7 +33,7 @@
  *
  * Doesn't call parent, see [/atom/proc/Initialize]
  */
-/turf/open/space/Initialize()
+/turf/open/space/Initialize(mapload)
 	SHOULD_CALL_PARENT(FALSE)
 	icon_state = SPACE_ICON_STATE
 	if(!space_gas)
@@ -228,16 +228,16 @@
 
 /turf/open/space/can_have_cabling()
 	if(locate(/obj/structure/lattice/catwalk, src))
-		return 1
-	return 0
+		return TRUE
+	return FALSE
 
 /turf/open/space/is_transition_turf()
 	if(destination_x || destination_y || destination_z)
-		return 1
+		return TRUE
 
 
 /turf/open/space/acid_act(acidpwr, acid_volume)
-	return 0
+	return FALSE
 
 /turf/open/space/get_smooth_underlay_icon(mutable_appearance/underlay_appearance, turf/asking_turf, adjacency_dir)
 	underlay_appearance.icon = 'icons/turf/space.dmi'
@@ -283,7 +283,7 @@
 	baseturfs = /turf/open/space/transparent/openspace
 	intact = FALSE //this means wires go on top
 
-/turf/open/space/transparent/Initialize() // handle plane and layer here so that they don't cover other obs/turfs in Dream Maker
+/turf/open/space/transparent/Initialize(mapload) // handle plane and layer here so that they don't cover other obs/turfs in Dream Maker
 	..()
 	plane = OPENSPACE_PLANE
 	layer = OPENSPACE_LAYER
@@ -339,7 +339,7 @@
 /turf/open/space/transparent/openspace/show_bottom_level()
 	return FALSE
 
-/turf/open/space/transparent/openspace/Initialize() // handle plane and layer here so that they don't cover other obs/turfs in Dream Maker
+/turf/open/space/transparent/openspace/Initialize(mapload) // handle plane and layer here so that they don't cover other obs/turfs in Dream Maker
 	. = ..()
 
 	icon_state = "transparent"

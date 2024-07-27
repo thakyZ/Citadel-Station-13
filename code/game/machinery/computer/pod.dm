@@ -15,7 +15,7 @@
 	/// Countdown timer for the mass driver's delayed launch functionality.
 	COOLDOWN_DECLARE(massdriver_countdown)
 
-/obj/machinery/computer/pod/Initialize()
+/obj/machinery/computer/pod/Initialize(mapload)
 	. = ..()
 	for(var/obj/machinery/mass_driver/M in range(range, src))
 		if(M.id == id)
@@ -138,13 +138,13 @@
 	name = "\improper DoorMex control console"
 	icon_state = "oldcomp"
 	icon_screen = "library"
-	icon_keyboard = "no_keyboard"
+	icon_keyboard = null
 
 // /obj/machinery/computer/pod/old/mass_driver_controller
 // 	name = "\improper Mass Driver Controller"
 // 	icon = 'icons/obj/airlock_machines.dmi'
 // 	icon_state = "airlock_control_standby"
-// 	icon_keyboard = "no_keyboard"
+// 	icon_keyboard = null
 // 	density = FALSE
 
 // /obj/machinery/computer/pod/old/mass_driver_controller/toxinsdriver

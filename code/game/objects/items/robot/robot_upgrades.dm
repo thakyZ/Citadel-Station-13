@@ -8,31 +8,28 @@
 	icon_state = "cyborg_upgrade"
 	w_class = WEIGHT_CLASS_SMALL
 	var/locked = FALSE
-	var/installed = 0
-	var/require_module = 0
-	var/list/module_type
+	var/installed = FALSE
+	var/require_module = FALSE
+	var/list/module_type = null
 	///	Bitflags listing module compatibility. Used in the exosuit fabricator for creating sub-categories.
 	var/module_flags = NONE
 	// if true, is not stored in the robot to be ejected
 	// if module is reset
 	var/one_use = FALSE
+	/// Means this is a basetype and should not be used
+	var/abstract_type = /obj/item/borg/upgrade
+	/// Show the amount of this module that is installed
+	var/show_amount = FALSE
 
 /obj/item/borg/upgrade/proc/action(mob/living/silicon/robot/R, user = usr)
 	if(R.stat == DEAD)
-		to_chat(user, "<span class='warning'>[src] will not function on a deceased cyborg.</span>")
+		to_chat(user, span_warning("[src] will not function on a deceased cyborg!"))
 		return FALSE
 	if(module_type && !is_type_in_list(R.module, module_type))
-		to_chat(R, "<span class='alert'>Upgrade mounting error! No suitable hardpoint detected.</span>")
-		to_chat(user, "<span class='warning'>There's no mounting point for the module!</span>")
+		to_chat(R, span_alert("Upgrade mounting error! No suitable hardpoint detected."))
+		to_chat(user, span_warning("There's no mounting point for the module!"))
 		return FALSE
 	return TRUE
-
-/*
-This proc gets called by upgrades after installing them. Use this for things that for example need to be moved into a specific borg item,
-as performing this in action() will cause the upgrade to end up in the borg instead of its intended location due to forceMove() being called afterwards..
-*/
-/obj/item/borg/upgrade/proc/afterInstall(mob/living/silicon/robot/R, user = usr)
-	return
 
 /obj/item/borg/upgrade/proc/deactivate(mob/living/silicon/robot/R, user = usr)
 	if (!(src in R.upgrades))
@@ -90,18 +87,24 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 			to_chat(user, "<span class='notice'>There's no room for another VTEC unit!</span>")
 			return FALSE
 
-		//R.speed = -2 // Gotta go fast.
+		//R.vtec = -2 // Gotta go fast.
         //Citadel change - makes vtecs give an ability rather than reducing the borg's speed instantly
 		VC = new /obj/effect/proc_holder/silicon/cyborg/vtecControl
 		R.AddAbility(VC)
 		R.cansprint = 0
+		var/datum/hud/robot/robohud = R.hud_used
+		if(istype(robohud))
+			robohud.assert_move_intent_ui()
 
 /obj/item/borg/upgrade/vtec/deactivate(mob/living/silicon/robot/R, user = usr)
 	. = ..()
 	if (.)
 		R.RemoveAbility(VC)
-		R.speed = initial(R.speed)
+		R.vtec = initial(R.vtec)
 		R.cansprint = 1
+		var/datum/hud/robot/robohud = R.hud_used
+		if(istype(robohud))
+			robohud.assert_move_intent_ui()
 
 /obj/item/borg/upgrade/disablercooler
 	name = "cyborg rapid energy blaster cooling module"
@@ -216,6 +219,25 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 			for(var/obj/item/ammo_casing/energy/plasma/weak/L in C.ammo_type)
 				L.projectile_type = initial(L.projectile_type)
 
+/obj/item/borg/upgrade/premiumka
+	name = "mining cyborg premium KA"
+	desc = "A premium kinetic accelerator replacement for the mining module's standard kinetic accelerator."
+	icon_state = "cyborg_upgrade3"
+	require_module = 1
+	module_type = list(/obj/item/robot_module/miner)
+
+/obj/item/borg/upgrade/premiumka/action(mob/living/silicon/robot/R, user = usr)
+	. = ..()
+	if(.)
+		for(var/obj/item/gun/energy/kinetic_accelerator/cyborg/KA in R.module)
+			for(var/obj/item/borg/upgrade/modkit/M in KA.modkits)
+				M.uninstall(src)
+			R.module.remove_module(KA, TRUE)
+
+		var/obj/item/gun/energy/kinetic_accelerator/premiumka/cyborg/PKA = new /obj/item/gun/energy/kinetic_accelerator/premiumka/cyborg(R.module)
+		R.module.basic_modules += PKA
+		R.module.add_module(PKA, FALSE, TRUE)
+
 /obj/item/borg/upgrade/tboh
 	name = "janitor cyborg trash bag of holding"
 	desc = "A trash bag of holding replacement for the janiborg's standard trash bag."
@@ -305,12 +327,12 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 /obj/item/borg/upgrade/lavaproof/action(mob/living/silicon/robot/R, user = usr)
 	. = ..()
 	if(.)
-		R.weather_immunities += "lava"
+		ADD_TRAIT(R, TRAIT_LAVA_IMMUNE, type)
 
 /obj/item/borg/upgrade/lavaproof/deactivate(mob/living/silicon/robot/R, user = usr)
 	. = ..()
 	if (.)
-		R.weather_immunities -= "lava"
+		REMOVE_TRAIT(R, TRAIT_LAVA_IMMUNE, type)
 
 /obj/item/borg/upgrade/selfrepair
 	name = "self-repair module"
@@ -421,6 +443,7 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 		/obj/item/robot_module/syndicate_medical)
 	var/list/additional_reagents = list()
 	module_flags = BORG_MODULE_MEDICAL
+	abstract_type = /obj/item/borg/upgrade/hypospray
 
 /obj/item/borg/upgrade/hypospray/action(mob/living/silicon/robot/R, user = usr)
 	. = ..()
@@ -457,6 +480,10 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 	desc = "An upgrade to a cyborg's hypospray, allowing it to \
 		pierce armor and thick material."
 	icon_state = "cyborg_upgrade3"
+	module_type = list(/obj/item/robot_module/medical,
+		/obj/item/robot_module/syndicate_medical)
+	var/list/additional_reagents = list()
+	module_flags = BORG_MODULE_MEDICAL
 
 /obj/item/borg/upgrade/piercing_hypospray/action(mob/living/silicon/robot/R, user = usr)
 	. = ..()
@@ -514,6 +541,7 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 	module_type = list(
 		/obj/item/robot_module/medical,
 		/obj/item/robot_module/syndicate_medical)
+	module_flags = BORG_MODULE_MEDICAL
 
 /obj/item/borg/upgrade/advhealth/action(mob/living/silicon/robot/R, user = usr)
 	. = ..()
@@ -690,13 +718,13 @@ as performing this in action() will cause the upgrade to end up in the borg inst
 	if(istype(user))
 		switch(currentState)
 			if (0)
-				user.speed = initial(user.speed)
+				user.vtec = initial(user.vtec)
 			if (1)
-				user.speed = initial(user.speed) - maxReduction * 0.5
+				user.vtec = initial(user.vtec) - maxReduction * 0.5
 			if (2)
-				user.speed = initial(user.speed) - maxReduction * 1
+				user.vtec = initial(user.vtec) - maxReduction * 1
 
 	action.button_icon_state = "Chevron_State_[currentState]"
-	action.UpdateButtonIcon()
+	action.UpdateButtons()
 
 	return TRUE

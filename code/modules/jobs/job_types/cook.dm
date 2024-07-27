@@ -17,9 +17,28 @@
 	minimal_access = list(ACCESS_KITCHEN, ACCESS_MORGUE, ACCESS_MINERAL_STOREROOM)
 	paycheck = PAYCHECK_EASY
 	paycheck_department = ACCOUNT_SRV
+	bounty_types = CIV_JOB_CHEF
+	departments = DEPARTMENT_BITFLAG_SERVICE
 
 	display_order = JOB_DISPLAY_ORDER_COOK
 	threat = 0.2
+
+	family_heirlooms = list(
+		/obj/item/reagent_containers/food/condiment/saltshaker,
+		/obj/item/kitchen/rollingpin,
+		/obj/item/clothing/head/chefhat
+	)
+
+	mail_goodies = list(
+		/obj/item/storage/box/ingredients/wildcard = 80,
+		/datum/reagent/consumable/caramel =  20,
+		/obj/item/reagent_containers/food/condiment/flour = 20,
+		/obj/item/reagent_containers/food/condiment/rice = 20,
+		/obj/item/reagent_containers/food/condiment/enzyme = 15,
+		/obj/item/reagent_containers/food/condiment/soymilk = 15,
+		/obj/item/kitchen/knife = 4,
+		/obj/item/kitchen/knife/butcher = 2
+	)
 
 /datum/outfit/job/cook
 	name = "Cook"

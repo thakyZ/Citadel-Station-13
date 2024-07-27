@@ -20,6 +20,11 @@
 	var/hair_color = "000"
 	var/hair_style = "Bald"
 
+	///Colour used for the hair gradient.
+	var/grad_color = "000"
+	///Style used for the hair gradient.
+	var/grad_style
+
 	//Facial hair colour and style
 	var/facial_hair_color = "000"
 	var/facial_hair_style = "Shaved"
@@ -51,6 +56,9 @@
 	var/obj/item/l_store = null
 	var/obj/item/s_store = null
 
+	/// When an braindead player has their equipment fiddled with, we log that info here for when they come back so they know who took their ID while they were DC'd for 30 seconds
+	var/list/afk_thefts
+
 	var/special_voice = "" // For changing our voice. Used by a symptom.
 
 	var/bleedsuppress = 0 //for stopping bloodloss, eventually this will be limb-based like bleeding
@@ -77,6 +85,8 @@
 	var/hardcore_survival_score = 0
 
 	tooltips = TRUE
+
+	var/additional_language //the additional language this human can speak from their preference selection
 
 /// Unarmed parry data for human
 /datum/block_parry_data/unarmed/human

@@ -6,7 +6,7 @@
 	icon_state = "yellow"
 	density = TRUE
 	volume = 1000
-	armor = list("melee" = 50, "bullet" = 50, "laser" = 50, "energy" = 100, "bomb" = 10, "bio" = 100, "rad" = 100, "fire" = 80, "acid" = 50)
+	armor = list(MELEE = 50, BULLET = 50, LASER = 50, ENERGY = 100, BOMB = 10, BIO = 100, RAD = 100, FIRE = 80, ACID = 50)
 	max_integrity = 250
 	integrity_failure = 0.4
 	pressure_resistance = 7 * ONE_ATMOSPHERE
@@ -235,7 +235,7 @@
 		. += "can-open"
 	if(connected_port)
 		. += "can-connector"
-	var/pressure = air_contents.return_pressure()
+	var/pressure = air_contents?.return_pressure()
 	if(pressure >= 40 * ONE_ATMOSPHERE)
 		. += "can-o3"
 	else if(pressure >= 10 * ONE_ATMOSPHERE)
@@ -295,6 +295,7 @@
 	density = FALSE
 	playsound(src.loc, 'sound/effects/spray.ogg', 10, TRUE, -3)
 	investigate_log("was destroyed.", INVESTIGATE_ATMOS)
+	update_icon_state()
 
 	if(holding)
 		holding.forceMove(T)
@@ -387,7 +388,7 @@
 		return
 	switch(action)
 		if("relabel")
-			var/label = input("New canister label:", name) as null|anything in sortList(label2types)
+			var/label = input("New canister label:", name) as null|anything in sort_list(label2types)
 			if(label && !..())
 				var/newtype = label2types[label]
 				if(newtype)
@@ -433,7 +434,7 @@
 					var/list/danger = list()
 					for(var/id in air_contents.get_gases())
 						var/gas = air_contents.get_moles(id)
-						if(!GLOB.gas_data.flags[id] & GAS_FLAG_DANGEROUS)
+						if(!(GLOB.gas_data.flags[id] & GAS_FLAG_DANGEROUS))
 							continue
 						if(gas > (GLOB.gas_data.visibility[id] || MOLES_GAS_VISIBLE)) //if moles_visible is undefined, default to default visibility
 							danger[GLOB.gas_data.names[id]] = gas //ex. "plasma" = 20

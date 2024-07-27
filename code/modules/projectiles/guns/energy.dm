@@ -16,10 +16,13 @@
 	name = "energy gun"
 	desc = "A basic energy-based gun."
 	icon = 'icons/obj/guns/energy.dmi'
+	recoil = 0.1
 
 	var/obj/item/stock_parts/cell/cell //What type of power cell this uses
 	var/cell_type = /obj/item/stock_parts/cell
-	var/modifystate = 0
+	var/modifystate = FALSE
+	/// If TRUE, when modifystate is TRUE this energy gun gets an overlay based on its selected shot type, like "[icon_state]_disable".
+	var/shot_type_overlay = TRUE
 	/// = TRUE/FALSE decides if the user can switch to it of their own accord
 	var/list/ammo_type = list(/obj/item/ammo_casing/energy = TRUE)
 	/// The index of the ammo_types/firemodes which we're using right now
@@ -44,12 +47,12 @@
 		cell.use(round(cell.charge * severity/100))
 		chambered = null //we empty the chamber
 		recharge_newshot() //and try to charge a new shot
-		update_icon()
+		update_appearance()
 
 /obj/item/gun/energy/get_cell()
 	return cell
 
-/obj/item/gun/energy/Initialize()
+/obj/item/gun/energy/Initialize(mapload)
 	. = ..()
 	if(cell_type)
 		cell = new cell_type(src)
@@ -61,7 +64,7 @@
 	recharge_newshot(TRUE)
 	if(selfcharge)
 		START_PROCESSING(SSobj, src)
-	update_icon()
+	update_appearance()
 
 /obj/item/gun/energy/ComponentInitialize()
 	. = ..()
@@ -74,7 +77,7 @@
 /obj/item/gun/energy/handle_atom_del(atom/A)
 	if(A == cell)
 		cell = null
-		update_icon()
+		update_appearance()
 	return ..()
 
 /obj/item/gun/energy/examine(mob/user)
@@ -100,7 +103,7 @@
 		cell.give(100)
 		if(!chambered) //if empty chamber we try to charge a new shot
 			recharge_newshot(TRUE)
-		update_icon()
+		update_appearance()
 
 // ATTACK SELF IGNORING PARENT RETURN VALUE
 /obj/item/gun/energy/attack_self(mob/living/user)
@@ -174,7 +177,7 @@
 	if(user_for_feedback)
 		to_chat(user_for_feedback, "<span class='notice'>[src] is now set to [C.select_name || C].</span>")
 	post_set_firemode()
-	update_icon(TRUE)
+	update_appearance()
 
 /obj/item/gun/energy/proc/post_set_firemode(recharge_newshot = TRUE)
 	if(recharge_newshot)
@@ -258,7 +261,11 @@
 	var/ratio = get_charge_ratio()
 	if (modifystate)
 		var/obj/item/ammo_casing/energy/shot = ammo_type[current_firemode_index]
-		. += "[icon_state]_[shot.select_name]"
+		// Some guns, like the mini egun, don't have non-charge mode states. Remove or rework this check when that's fixed.
+		// Currently, it's entirely too hyperspecific; there's no way to have the non-charge overlay without the charge overlay, for example.
+		// Oh, well.
+		if (shot_type_overlay)
+			. += "[icon_state]_[shot.select_name]"
 		overlay_icon_state += "_[shot.select_name]"
 	if(ratio == 0)
 		. += "[icon_state]_empty"

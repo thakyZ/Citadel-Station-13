@@ -35,7 +35,7 @@
 /obj/item/gun/ballistic/automatic/toy/pistol/riot
 	mag_type = /obj/item/ammo_box/magazine/toy/pistol/riot
 
-/obj/item/gun/ballistic/automatic/toy/pistol/riot/Initialize()
+/obj/item/gun/ballistic/automatic/toy/pistol/riot/Initialize(mapload)
 	magazine = new /obj/item/ammo_box/magazine/toy/pistol/riot(src)
 	return ..()
 
@@ -128,6 +128,7 @@
 	weapon_weight = WEAPON_MEDIUM
 	dualwield_spread_mult = 1.4
 	w_class = WEIGHT_CLASS_BULKY
+	automatic_burst_overlay = FALSE
 
 /obj/item/gun/ballistic/shotgun/toy/mag
 	name = "foam force magpistol"
@@ -140,6 +141,6 @@
 	recoil = 0.1
 	inaccuracy_modifier = 0.25
 	dualwield_spread_mult = 1.4
-	slot_flags = SLOT_BELT
+	slot_flags = ITEM_SLOT_BELT
 	w_class = WEIGHT_CLASS_NORMAL
 	weapon_weight = WEAPON_MEDIUM

@@ -9,9 +9,9 @@
 	var/acid_cap = acidpwr * 300
 	level = min(acidpwr * acid_volume, acid_cap)
 	START_PROCESSING(SSprocessing, src)
-	RegisterSignal(parent, COMSIG_ATOM_UPDATE_OVERLAYS, .proc/add_acid_overlay)
+	RegisterSignal(parent, COMSIG_ATOM_UPDATE_OVERLAYS, PROC_REF(add_acid_overlay))
 	if(isitem(parent))
-		RegisterSignal(parent, COMSIG_ATOM_ATTACK_HAND, .proc/on_attack_hand)
+		RegisterSignal(parent, COMSIG_ATOM_ATTACK_HAND, PROC_REF(on_attack_hand))
 	O.update_icon()
 
 /datum/component/acid/proc/on_attack_hand(datum/source, mob/user)
@@ -38,9 +38,11 @@
 
 /datum/component/acid/Destroy()
 	STOP_PROCESSING(SSprocessing, src)
-	var/obj/O = parent
 	level = 0
-	O.update_overlays()
+	if(parent) // So, this is how you get runtimes fellas.
+		UnregisterSignal(parent, list(COMSIG_ATOM_UPDATE_OVERLAYS, COMSIG_ATOM_ATTACK_HAND)) // Don't worry about isitem checks, we don't need them.
+		var/atom/O = parent
+		O.update_icon(UPDATE_OVERLAYS)
 	return ..()
 
 /datum/component/acid/process()
@@ -51,7 +53,7 @@
 	if(!(O.resistance_flags & ACID_PROOF))
 		if(prob(33))
 			playsound(O.loc, 'sound/items/welder.ogg', 150, 1)
-		O.take_damage(min(1 + round(sqrt(level)*0.3), 300), BURN, "acid", 0)
+		O.take_damage(min(1 + round(sqrt(level)*0.3), 300), BURN, ACID, 0)
 
 	level = max(level - (5 + 3*round(sqrt(level))), 0)
 	if(level <= 0)

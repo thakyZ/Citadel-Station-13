@@ -13,7 +13,7 @@
 	var/point_regen_amount = 1
 	sentience_type = SENTIENCE_BOSS
 
-/mob/living/simple_animal/hostile/boss/Initialize()
+/mob/living/simple_animal/hostile/boss/Initialize(mapload)
 	. = ..()
 
 	atb = new()
@@ -143,7 +143,7 @@
 		var/datum/action/boss/AB = ab
 		if(!boss.client && (!AB.req_statuses || (boss.AIStatus in AB.req_statuses)) && prob(AB.usage_probability) && AB.Trigger())
 			break
-		AB.UpdateButtonIcon(TRUE)
+		AB.UpdateButtons(TRUE)
 
 
 /datum/boss_active_timed_battle/Destroy()

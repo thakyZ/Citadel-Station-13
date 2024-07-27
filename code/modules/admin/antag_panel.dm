@@ -77,7 +77,7 @@ GLOBAL_VAR(antag_prototypes)
 	return common_commands
 
 /datum/mind/proc/get_special_statuses()
-	var/list/result = list()
+	var/list/result = LAZYCOPY(special_statuses)
 	if(!current)
 		result += "<span class='bad'>No body!</span>"
 	if(current && HAS_TRAIT(current, TRAIT_MINDSHIELD))
@@ -119,7 +119,7 @@ GLOBAL_VAR(antag_prototypes)
 				GLOB.antag_prototypes[cat_id] = list(A)
 			else
 				GLOB.antag_prototypes[cat_id] += A
-	sortTim(GLOB.antag_prototypes,/proc/cmp_text_asc,associative=TRUE)
+	sortTim(GLOB.antag_prototypes,GLOBAL_PROC_REF(cmp_text_asc),associative=TRUE)
 
 	var/list/sections = list()
 	var/list/priority_sections = list()

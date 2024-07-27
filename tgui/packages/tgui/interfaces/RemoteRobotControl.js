@@ -1,5 +1,4 @@
 import { decodeHtmlEntities } from 'common/string';
-import { Fragment } from 'inferno';
 import { useBackend } from '../backend';
 import { Box, Button, NoticeBox, Section, LabeledList } from '../components';
 import { Window } from '../layouts';
@@ -9,8 +8,7 @@ export const RemoteRobotControl = (props, context) => {
     <Window
       title="Remote Robot Control"
       width={500}
-      height={500}
-      resizable>
+      height={500}>
       <Window.Content scrollable>
         <RemoteRobotControlContent />
       </Window.Content>
@@ -22,6 +20,7 @@ export const RemoteRobotControlContent = (props, context) => {
   const { act, data } = useBackend(context);
   const {
     robots = [],
+    commandeering,
   } = data;
   if (!robots.length) {
     return (
@@ -38,7 +37,7 @@ export const RemoteRobotControlContent = (props, context) => {
         key={robot.ref}
         title={robot.name + " (" + robot.model + ")"}
         buttons={(
-          <Fragment>
+          <>
             <Button
               icon="tools"
               content="Interface"
@@ -48,10 +47,11 @@ export const RemoteRobotControlContent = (props, context) => {
             <Button
               icon="phone-alt"
               content="Call"
+              selected={robot.ref === commandeering}
               onClick={() => act('callbot', {
                 ref: robot.ref,
               })} />
-          </Fragment>
+          </>
         )}>
         <LabeledList>
           <LabeledList.Item label="Status">

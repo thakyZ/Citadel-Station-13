@@ -55,7 +55,7 @@
 	. = ..()
 	if(dropping == user && isliving(user))
 		var/mob/living/L = user
-		if(L.resting && do_after(L, max(10, L.getStaminaLoss()*0.5), 0, src))
+		if(L.resting && do_after(L, max(10, L.getStaminaLoss()*0.5), src, IGNORE_HELD_ITEM))
 			if(Adjacent(L, src))
 				step(L, get_dir(L, src))
 				playsound(L, "rustle", 25, 1)
@@ -124,7 +124,7 @@
 	heavyfootstep = FOOTSTEP_LAVA
 	tiled_dirt = FALSE
 
-/turf/open/indestructible/necropolis/Initialize()
+/turf/open/indestructible/necropolis/Initialize(mapload)
 	. = ..()
 	if(prob(12))
 		icon_state = "necro[rand(2,3)]"
@@ -218,13 +218,10 @@
 			flash_color(L, flash_color = "#C80000", flash_time = 10)
 
 /turf/open/Initalize_Atmos(times_fired)
-	if(!blocks_air)
-		if(!istype(air,/datum/gas_mixture/turf))
-			air = new(2500,src)
-		air.copy_from_turf(src)
-		update_air_ref(planetary_atmos ? 1 : 2)
-
-	update_visuals()
+	if(!istype(air,/datum/gas_mixture/turf))
+		air = new(2500,src)
+	air.copy_from_turf(src)
+	update_air_ref(planetary_atmos ? 1 : 2)
 
 	ImmediateCalculateAdjacentTurfs()
 
@@ -248,7 +245,7 @@
 		if(L.bodytemperature <= 50)
 			L.apply_status_effect(/datum/status_effect/freon)
 	MakeSlippery(TURF_WET_PERMAFROST, 50)
-	return 1
+	return TRUE
 
 /turf/open/proc/water_vapor_gas_act()
 	MakeSlippery(TURF_WET_WATER, min_wet_time = 100, wet_time_to_add = 50)
@@ -301,7 +298,7 @@
 		lube |= SLIDE_ICE
 
 	if(lube&SLIDE)
-		new /datum/forced_movement(C, get_ranged_target_turf(C, olddir, 4), 1, FALSE, CALLBACK(C, /mob/living/carbon/.proc/spin, 1, 1))
+		new /datum/forced_movement(C, get_ranged_target_turf(C, olddir, 4), 1, FALSE, CALLBACK(C, TYPE_PROC_REF(/mob/living/carbon, spin), 1, 1))
 	else if(lube&SLIDE_ICE)
 		new /datum/forced_movement(C, get_ranged_target_turf(C, olddir, 1), 1, FALSE)	//spinning would be bad for ice, fucks up the next dir
 	return TRUE

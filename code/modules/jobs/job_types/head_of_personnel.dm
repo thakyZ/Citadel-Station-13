@@ -1,7 +1,7 @@
 /datum/job/hop
 	title = "Head of Personnel"
 	flag = HOP
-//	auto_deadmin_role_flags = DEADMIN_POSITION_HEAD
+	auto_deadmin_role_flags = DEADMIN_POSITION_HEAD
 	department_head = list("Captain")
 	department_flag = CIVILIAN
 	head_announce = list(RADIO_CHANNEL_SERVICE)
@@ -17,6 +17,7 @@
 	exp_type_department = EXP_TYPE_SERVICE
 	considered_combat_role = TRUE
 	outfit = /datum/outfit/job/hop
+	departments = DEPARTMENT_BITFLAG_COMMAND | DEPARTMENT_BITFLAG_SERVICE
 	plasma_outfit = /datum/outfit/plasmaman/hop
 
 	access = list(ACCESS_SECURITY, ACCESS_SEC_DOORS, ACCESS_COURT, ACCESS_WEAPONS,
@@ -33,12 +34,21 @@
 						ACCESS_HOP, ACCESS_RC_ANNOUNCE, ACCESS_KEYCARD_AUTH, ACCESS_GATEWAY)
 	paycheck = PAYCHECK_COMMAND
 	paycheck_department = ACCOUNT_SRV
+	bounty_types = CIV_JOB_RANDOM
 
 	display_order = JOB_DISPLAY_ORDER_HEAD_OF_PERSONNEL
 
 	blacklisted_quirks = list(/datum/quirk/mute, /datum/quirk/brainproblems, /datum/quirk/prosopagnosia, /datum/quirk/insanity)
 	threat = 2
 
+	family_heirlooms = list(
+		/obj/item/reagent_containers/food/drinks/trophy/silver_cup
+	)
+
+	mail_goodies = list(
+		/obj/item/card/id/silver = 10,
+		/obj/item/stack/sheet/bone = 5
+	)
 
 /datum/outfit/job/hop
 	name = "Head of Personnel"
@@ -54,3 +64,11 @@
 		/obj/item/melee/classic_baton/telescopic=1, /obj/item/modular_computer/tablet/preset/advanced = 1)
 
 	chameleon_extras = list(/obj/item/gun/energy/e_gun, /obj/item/stamp/hop)
+
+//only pet worth reviving
+/datum/job/hop/get_mail_goodies(mob/recipient)
+	. = ..()
+	// Strange Reagent if the pet is dead.
+	for(var/mob/living/simple_animal/pet/dog/corgi/Ian/staff_pet in GLOB.dead_mob_list)
+		. += list(/datum/reagent/medicine/strange_reagent = 20)
+		break

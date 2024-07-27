@@ -17,7 +17,7 @@
 	var/locked = FALSE //Locked beacons don't allow to jump to it.
 
 
-/obj/machinery/spaceship_navigation_beacon/Initialize()
+/obj/machinery/spaceship_navigation_beacon/Initialize(mapload)
 	. = ..()
 	SSshuttle.beacons |= src
 
@@ -30,6 +30,7 @@
 
 // update the icon_state
 /obj/machinery/spaceship_navigation_beacon/update_icon()
+	. = ..()
 	if(powered())
 		icon_state = "core"
 	else

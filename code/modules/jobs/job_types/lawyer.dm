@@ -21,7 +21,13 @@
 	mind_traits = list(TRAIT_LAW_ENFORCEMENT_METABOLISM)
 
 	display_order = JOB_DISPLAY_ORDER_LAWYER
+	departments = DEPARTMENT_BITFLAG_SERVICE
 	threat = 0.3
+
+	family_heirlooms = list(
+		/obj/item/gavelhammer,
+		/obj/item/book/manual/wiki/security_space_law
+	)
 
 /datum/outfit/job/lawyer
 	name = "Lawyer"

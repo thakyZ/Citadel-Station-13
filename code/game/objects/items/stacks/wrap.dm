@@ -20,6 +20,9 @@
 	if(QDELETED(src) && !transfer)
 		new /obj/item/c_tube(T)
 
+/obj/item/stack/wrapping_paper/small
+	desc = "Wrap packages with this festive paper to make gifts. This roll looks a bit skimpy."
+	amount = 10
 
 /*
  * Package Wrap
@@ -37,10 +40,16 @@
 	resistance_flags = FLAMMABLE
 	grind_results = list(/datum/reagent/cellulose = 5)
 
+/obj/item/stack/packageWrap/cyborg
+	custom_materials = null
+	is_cyborg = TRUE
+	source = /datum/robot_energy_storage/wrapping_paper
+	cost = 1
+
 /obj/item/stack/packageWrap/suicide_act(mob/living/user)
 	user.visible_message("<span class='suicide'>[user] begins wrapping [user.p_them()]self in \the [src]! It looks like [user.p_theyre()] trying to commit suicide!</span>")
 	if(use(3))
-		var/obj/structure/bigDelivery/P = new /obj/structure/bigDelivery(get_turf(user.loc))
+		var/obj/structure/big_delivery/P = new /obj/structure/big_delivery(get_turf(user.loc))
 		P.icon_state = "deliverypackage5"
 		user.forceMove(P)
 		P.add_fingerprint(user)
@@ -50,16 +59,16 @@
 		return SHAME
 
 /obj/item/proc/can_be_package_wrapped() //can the item be wrapped with package wrapper into a delivery package
-	return 1
+	return TRUE
 
 /obj/item/storage/can_be_package_wrapped()
-	return 0
+	return FALSE
 
 /obj/item/storage/box/can_be_package_wrapped()
-	return 1
+	return TRUE
 
-/obj/item/smallDelivery/can_be_package_wrapped()
-	return 0
+/obj/item/small_delivery/can_be_package_wrapped()
+	return FALSE
 
 /obj/item/stack/packageWrap/afterattack(obj/target, mob/user, proximity)
 	. = ..()
@@ -80,7 +89,7 @@
 		else if(!isturf(I.loc))
 			return
 		if(use(1))
-			var/obj/item/smallDelivery/P = new /obj/item/smallDelivery(get_turf(I.loc))
+			var/obj/item/small_delivery/P = new /obj/item/small_delivery(get_turf(I.loc))
 			if(user.Adjacent(I))
 				P.add_fingerprint(user)
 				I.add_fingerprint(user)
@@ -100,7 +109,7 @@
 			to_chat(user, "<span class='warning'>You can't wrap this!</span>")
 			return
 		if(use(3))
-			var/obj/structure/bigDelivery/P = new /obj/structure/bigDelivery(get_turf(O.loc))
+			var/obj/structure/big_delivery/P = new /obj/structure/big_delivery(get_turf(O.loc))
 			P.icon_state = O.delivery_icon
 			O.forceMove(P)
 			P.add_fingerprint(user)
@@ -120,6 +129,11 @@
 	. = ..()
 	if(QDELETED(src) && !transfer)
 		new /obj/item/c_tube(T)
+
+/obj/item/stack/packageWrap/small
+	desc = "You can use this to wrap items in. This roll looks a bit skimpy."
+	w_class = WEIGHT_CLASS_SMALL
+	amount = 5
 
 /obj/item/c_tube
 	name = "cardboard tube"
